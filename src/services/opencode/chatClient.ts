@@ -1,6 +1,7 @@
 import type {
   ChatAuth,
   ChatMessage,
+  MessageRole,
   SessionInfo,
   OpenCodeEvent,
   OpenCodeEventType,
@@ -26,6 +27,21 @@ function cleanBaseUrl(url: string): string {
   return url.replace(/\/+$/, '')
 }
 
+function extractData(json: any): any {
+  if (json && typeof json === 'object' && 'data' in json) {
+    return json.data
+  }
+  return json
+}
+
+function formatTimestamp(timeVal: unknown): string {
+  if (!timeVal) return new Date().toISOString()
+  if (typeof timeVal === 'number') {
+    return new Date(timeVal).toISOString()
+  }
+  return String(timeVal)
+}
+
 export async function fetchSessions(baseUrl: string, auth: ChatAuth): Promise<SessionInfo[]> {
   const url = `${cleanBaseUrl(baseUrl)}/api/session`
   const response = await fetch(url, {
@@ -37,14 +53,15 @@ export async function fetchSessions(baseUrl: string, auth: ChatAuth): Promise<Se
     throw new Error(`Failed to fetch sessions: HTTP ${response.status}`)
   }
 
-  const data = await response.json()
+  const raw = await response.json()
+  const data = extractData(raw)
   if (!Array.isArray(data)) return []
 
   return data.map((item: any) => ({
     id: String(item.id || item.sessionID || ''),
     title: String(item.title || item.name || 'Untitled session'),
-    createdAt: String(item.createdAt || item.created || new Date().toISOString()),
-    updatedAt: String(item.updatedAt || item.updated || item.createdAt || new Date().toISOString()),
+    createdAt: formatTimestamp(item.time?.created || item.createdAt || item.created),
+    updatedAt: formatTimestamp(item.time?.updated || item.updatedAt || item.updated),
   }))
 }
 
@@ -62,12 +79,13 @@ export async function createSession(baseUrl: string, auth: ChatAuth, title?: str
     throw new Error(`Failed to create session: HTTP ${response.status}`)
   }
 
-  const item = await response.json()
+  const raw = await response.json()
+  const item = extractData(raw)
   return {
     id: String(item.id || item.sessionID || ''),
     title: String(item.title || item.name || title || 'New session'),
-    createdAt: String(item.createdAt || item.created || new Date().toISOString()),
-    updatedAt: String(item.updatedAt || item.updated || new Date().toISOString()),
+    createdAt: formatTimestamp(item.time?.created || item.createdAt || item.created),
+    updatedAt: formatTimestamp(item.time?.updated || item.updatedAt || item.updated),
   }
 }
 
@@ -86,17 +104,84 @@ export async function fetchSessionMessages(
     throw new Error(`Failed to fetch messages: HTTP ${response.status}`)
   }
 
-  const data = await response.json()
+  const raw = await response.json()
+  const data = extractData(raw)
   if (!Array.isArray(data)) return []
 
-  return data.map((item: any, idx: number) => ({
-    id: String(item.id || `msg_${idx}`),
-    role: item.role === 'user' ? 'user' : 'assistant',
-    content: String(item.content || item.text || ''),
-    createdAt: String(item.createdAt || item.timestamp || new Date().toISOString()),
-    toolCalls: Array.isArray(item.toolCalls) ? item.toolCalls : undefined,
-    pendingPermission: item.pendingPermission || undefined,
-  }))
+  return data.map((item: any, idx: number) => {
+    const role: MessageRole = item.type === 'assistant' || item.role === 'assistant' ? 'assistant' : 'user'
+    let content = ''
+    const toolCalls: any[] = []
+
+    if (typeof item.text === 'string') {
+      content = item.text
+    } else if (typeof item.content === 'string') {
+      content = item.content
+    } else if (Array.isArray(item.content)) {
+      // OpenCode 2.2.5 structured content parts
+      for (const part of item.content) {
+        if (part.type === 'text') {
+          content += (part.text || '')
+        } else if (part.type === 'tool') {
+          toolCalls.push({
+            id: String(part.id || `tool_${idx}`),
+            name: String(part.name || 'tool'),
+            arguments: (part.state?.input || part.input || {}) as Record<string, unknown>,
+            status: part.state?.status === 'error' ? 'failed' : (part.state?.status === 'running' ? 'running' : 'completed'),
+            result: part.state?.content ? part.state.content.map((c: any) => c.text || JSON.stringify(c)).join('\n') : undefined,
+            error: part.state?.error?.message,
+          })
+        }
+      }
+    } else if (item.payload?.text) {
+      content = String(item.payload.text)
+    }
+
+    return {
+      id: String(item.id || `msg_${idx}`),
+      role,
+      content,
+      createdAt: formatTimestamp(item.time?.created || item.createdAt || item.timestamp),
+      toolCalls: toolCalls.length > 0 ? toolCalls : (Array.isArray(item.toolCalls) ? item.toolCalls : undefined),
+      pendingPermission: item.pendingPermission || undefined,
+    }
+  })
+}
+
+export async function switchSessionModel(
+  baseUrl: string,
+  auth: ChatAuth,
+  sessionId: string,
+  modelId: string
+): Promise<void> {
+  const url = `${cleanBaseUrl(baseUrl)}/api/session/${encodeURIComponent(sessionId)}/model`
+  const parts = modelId.split('/')
+  const providerID = parts.length > 1 ? parts[0] : 'default'
+  const id = parts.length > 1 ? parts.slice(1).join('/') : modelId
+
+  await fetch(url, {
+    method: 'POST',
+    headers: buildHeaders(auth),
+    body: JSON.stringify({
+      model: { id, providerID },
+    }),
+  })
+}
+
+export async function switchSessionAgent(
+  baseUrl: string,
+  auth: ChatAuth,
+  sessionId: string,
+  agentId: string
+): Promise<void> {
+  const url = `${cleanBaseUrl(baseUrl)}/api/session/${encodeURIComponent(sessionId)}/agent`
+  await fetch(url, {
+    method: 'POST',
+    headers: buildHeaders(auth),
+    body: JSON.stringify({
+      agent: agentId,
+    }),
+  })
 }
 
 export async function sendPrompt(
@@ -107,10 +192,21 @@ export async function sendPrompt(
   model?: string,
   agent?: string
 ): Promise<void> {
+  if (model) {
+    try {
+      await switchSessionModel(baseUrl, auth, sessionId, model)
+    } catch {}
+  }
+
+  if (agent && agent !== 'general') {
+    try {
+      await switchSessionAgent(baseUrl, auth, sessionId, agent)
+    } catch {}
+  }
+
   const url = `${cleanBaseUrl(baseUrl)}/api/session/${encodeURIComponent(sessionId)}/prompt`
-  const payload: Record<string, string> = { prompt }
-  if (model) payload.model = model
-  if (agent) payload.agent = agent
+  // OpenCode 2.2.5 accepts { text: prompt }
+  const payload = { text: prompt }
 
   const response = await fetch(url, {
     method: 'POST',
@@ -167,7 +263,8 @@ export async function fetchAgents(baseUrl: string, auth: ChatAuth): Promise<stri
 
   if (!response.ok) return ['general']
 
-  const data = await response.json()
+  const raw = await response.json()
+  const data = extractData(raw)
   if (!Array.isArray(data)) return ['general']
 
   return data.map((a: any) => String(a.id || a.name || a)).filter(Boolean)
@@ -182,7 +279,8 @@ export async function fetchModels(baseUrl: string, auth: ChatAuth): Promise<stri
     })
 
     if (!response.ok) return []
-    const data = await response.json()
+    const raw = await response.json()
+    const data = extractData(raw)
 
     const models: string[] = []
     if (data && Array.isArray(data.providers)) {

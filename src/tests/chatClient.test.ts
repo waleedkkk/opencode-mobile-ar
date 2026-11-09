@@ -91,9 +91,7 @@ describe('chatClient REST methods', () => {
       expect.objectContaining({
         method: 'POST',
         body: JSON.stringify({
-          prompt: 'do this task',
-          model: 'claude-3-5-sonnet',
-          agent: 'coder',
+          text: 'do this task',
         }),
       })
     )
@@ -152,5 +150,69 @@ describe('chatClient REST methods', () => {
 
     const models = await fetchModels(baseUrl, auth)
     expect(models).toEqual(['anthropic/claude-3-5-sonnet', 'openai/gpt-4o'])
+  })
+
+  it('fetchSessions supports OpenCode v2.2.5 { data: [...] } envelope', async () => {
+    const envelope = {
+      data: [
+        { id: 'ses_225', title: 'OpenCode 2.2.5 Session', time: { created: 1794228228285, updated: 1794228228285 } },
+      ],
+    }
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue({
+      ok: true,
+      json: async () => envelope,
+    } as Response)
+
+    const result = await fetchSessions(baseUrl, auth)
+    expect(result).toHaveLength(1)
+    expect(result[0].id).toBe('ses_225')
+    expect(result[0].title).toBe('OpenCode 2.2.5 Session')
+    expect(result[0].createdAt).toContain('T')
+  })
+
+  it('fetchSessionMessages supports OpenCode v2.2.5 structured content parts', async () => {
+    const envelope = {
+      data: [
+        {
+          id: 'msg_u',
+          type: 'user',
+          text: 'show git status',
+          time: { created: 1794228200000 },
+        },
+        {
+          id: 'msg_a',
+          type: 'assistant',
+          time: { created: 1794228205000 },
+          content: [
+            { type: 'text', text: 'Running git status now' },
+            {
+              type: 'tool',
+              id: 't_bash_1',
+              name: 'bash',
+              state: {
+                status: 'completed',
+                input: { command: 'git status' },
+                content: [{ type: 'text', text: 'On branch main' }],
+              },
+            },
+          ],
+        },
+      ],
+    }
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue({
+      ok: true,
+      json: async () => envelope,
+    } as Response)
+
+    const messages = await fetchSessionMessages(baseUrl, auth, 'ses_225')
+    expect(messages).toHaveLength(2)
+    expect(messages[0].role).toBe('user')
+    expect(messages[0].content).toBe('show git status')
+    expect(messages[1].role).toBe('assistant')
+    expect(messages[1].content).toBe('Running git status now')
+    expect(messages[1].toolCalls).toHaveLength(1)
+    expect(messages[1].toolCalls![0].name).toBe('bash')
+    expect(messages[1].toolCalls![0].status).toBe('completed')
+    expect(messages[1].toolCalls![0].result).toBe('On branch main')
   })
 })
