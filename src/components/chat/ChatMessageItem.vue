@@ -15,6 +15,25 @@
       class="max-w-[88%] sm:max-w-[80%] rounded-2xl px-3.5 py-2.5 shadow-2xs text-xs"
       :class="bubbleClass"
     >
+      <!-- Attached files if any -->
+      <div v-if="message.files && message.files.length > 0" class="flex flex-wrap gap-1.5 mb-2">
+        <div
+          v-for="file in message.files"
+          :key="file.id"
+          data-attachment
+          class="flex items-center gap-1.5 px-2 py-1 rounded-lg border border-border/40 bg-background/20 text-[11px]"
+        >
+          <img
+            v-if="file.mime && file.mime.startsWith('image/')"
+            :src="file.previewUrl || `data:${file.mime};base64,${file.data}`"
+            class="size-6 rounded object-cover"
+            :alt="file.name"
+          />
+          <FileText v-else class="size-3.5 opacity-70" />
+          <span class="truncate max-w-36 font-medium">{{ file.name }}</span>
+        </div>
+      </div>
+
       <!-- User message: plain text -->
       <p v-if="isUser" class="whitespace-pre-wrap leading-relaxed">
         {{ message.content }}
@@ -53,6 +72,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import { FileText } from '@lucide/vue'
 import type { ChatMessage } from '@/types/chat'
 import ChatMarkdown from './ChatMarkdown.vue'
 import ChatToolCallCard from './ChatToolCallCard.vue'

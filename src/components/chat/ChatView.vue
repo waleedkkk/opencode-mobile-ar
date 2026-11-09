@@ -21,7 +21,7 @@
     <ChatComposer
       :disabled="chatStore.streamingStatus === 'thinking' || chatStore.streamingStatus === 'tool_running'"
       :streaming="chatStore.streamingStatus !== 'idle'"
-      @send="(text) => chatStore.sendMessage(text)"
+      @send="(text, files) => chatStore.sendMessage(text, files)"
       @interrupt="chatStore.interrupt"
     />
 

@@ -3,6 +3,7 @@ import { ref } from 'vue'
 import type {
   ChatAuth,
   ChatMessage,
+  FileAttachment,
   OpenCodeEvent,
   PermissionRequest,
   SessionInfo,
@@ -120,9 +121,10 @@ export const useChatStore = defineStore('chat', () => {
     return created
   }
 
-  async function sendMessage(promptText: string): Promise<void> {
+  async function sendMessage(promptText: string, files?: FileAttachment[]): Promise<void> {
     const text = promptText.trim()
-    if (!text || !currentSessionId.value || !baseUrl.value) return
+    const hasFiles = Boolean(files && files.length > 0)
+    if ((!text && !hasFiles) || !currentSessionId.value || !baseUrl.value) return
 
     // Add optimistic user message
     const userMsg: ChatMessage = {
@@ -130,6 +132,7 @@ export const useChatStore = defineStore('chat', () => {
       role: 'user',
       content: text,
       createdAt: new Date().toISOString(),
+      files: hasFiles ? files : undefined,
     }
 
     // Prepare streaming assistant message
@@ -152,7 +155,8 @@ export const useChatStore = defineStore('chat', () => {
         currentSessionId.value,
         text,
         activeModel.value || undefined,
-        activeAgent.value || undefined
+        activeAgent.value || undefined,
+        files
       )
     } catch (err) {
       assistantMsg.streaming = false

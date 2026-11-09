@@ -39,6 +39,16 @@ describe('ChatComposer.vue', () => {
     await interruptBtn.trigger('click')
     expect(wrapper.emitted('interrupt')).toBeTruthy()
   })
+
+  it('renders attachment button and hidden file input', () => {
+    const wrapper = mount(ChatComposer, { props: { streaming: false } })
+
+    const attachBtn = wrapper.find('[data-action="attach"]')
+    const fileInput = wrapper.find('input[type="file"]')
+
+    expect(attachBtn.exists()).toBe(true)
+    expect(fileInput.exists()).toBe(true)
+  })
 })
 
 describe('ChatHeader.vue', () => {
@@ -96,5 +106,21 @@ describe('ChatMessageItem.vue', () => {
     const wrapper = mount(ChatMessageItem, { props: { message: astMsg } })
     expect(wrapper.text()).toContain('Sure, I executed:')
     expect(wrapper.text()).toContain('bash')
+  })
+
+  it('renders attached files inside the bubble', () => {
+    const msgWithFile: ChatMessage = {
+      id: 'm3',
+      role: 'user',
+      content: 'See attached diagram',
+      createdAt: '2026-11-08T10:00:10Z',
+      files: [
+        { id: 'f1', name: 'architecture.png', mime: 'image/png', data: '123' },
+      ],
+    }
+
+    const wrapper = mount(ChatMessageItem, { props: { message: msgWithFile } })
+    expect(wrapper.text()).toContain('architecture.png')
+    expect(wrapper.find('[data-attachment]').exists()).toBe(true)
   })
 })

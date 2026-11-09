@@ -1,6 +1,7 @@
 import type {
   ChatAuth,
   ChatMessage,
+  FileAttachment,
   MessageRole,
   SessionInfo,
   OpenCodeEvent,
@@ -190,7 +191,8 @@ export async function sendPrompt(
   sessionId: string,
   prompt: string,
   model?: string,
-  agent?: string
+  agent?: string,
+  files?: FileAttachment[]
 ): Promise<void> {
   if (model) {
     try {
@@ -205,8 +207,23 @@ export async function sendPrompt(
   }
 
   const url = `${cleanBaseUrl(baseUrl)}/api/session/${encodeURIComponent(sessionId)}/prompt`
-  // OpenCode 2.2.5 accepts { text: prompt }
-  const payload = { text: prompt }
+  // OpenCode 2.2.5 accepts { text: prompt, files?: [...] }
+  const payload: Record<string, unknown> = { text: prompt }
+
+  if (files && files.length > 0) {
+    payload.files = files.map((f) => {
+      const dataUri = f.data.startsWith('data:')
+        ? f.data
+        : `data:${f.mime || 'application/octet-stream'};base64,${f.data}`
+      return {
+        uri: dataUri,
+        data: f.data,
+        mime: f.mime,
+        name: f.name,
+        source: { type: 'inline' },
+      }
+    })
+  }
 
   const response = await fetch(url, {
     method: 'POST',

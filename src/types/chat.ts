@@ -17,6 +17,15 @@ export interface PermissionRequest {
   state: 'pending' | 'approved' | 'rejected'
 }
 
+export interface FileAttachment {
+  id: string
+  name: string
+  mime: string
+  data: string // base64 without data URI prefix
+  size?: number
+  previewUrl?: string
+}
+
 export interface ChatMessage {
   id: string
   role: MessageRole
@@ -25,6 +34,7 @@ export interface ChatMessage {
   streaming?: boolean
   toolCalls?: ToolCall[]
   pendingPermission?: PermissionRequest
+  files?: FileAttachment[]
 }
 
 export interface SessionInfo {

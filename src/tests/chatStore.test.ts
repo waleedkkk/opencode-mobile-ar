@@ -66,6 +66,26 @@ describe('chatStore', () => {
     expect(chatClient.sendPrompt).toHaveBeenCalled()
   })
 
+  it('sendMessage attaches files to user message and passes to sendPrompt', async () => {
+    const store = useChatStore()
+    await store.initForServer('srv_1')
+
+    const file = { id: 'f1', name: 'photo.jpg', mime: 'image/jpeg', data: 'abc===' }
+    await store.sendMessage('Check this photo', [file])
+
+    const userMsg = store.messages[2]
+    expect(userMsg.files).toEqual([file])
+    expect(chatClient.sendPrompt).toHaveBeenCalledWith(
+      expect.any(String),
+      expect.any(Object),
+      'ses_1',
+      'Check this photo',
+      expect.anything(),
+      expect.anything(),
+      [file]
+    )
+  })
+
   it('accumulates streaming deltas from SSE events', async () => {
     const store = useChatStore()
     await store.initForServer('srv_1')

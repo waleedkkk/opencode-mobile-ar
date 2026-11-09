@@ -97,6 +97,38 @@ describe('chatClient REST methods', () => {
     )
   })
 
+  it('sendPrompt sends files in payload conforming to OpenCode v2.2.5 schema', async () => {
+    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue({
+      ok: true,
+      json: async () => ({ status: 'ok' }),
+    } as Response)
+
+    const files = [
+      { id: 'f1', name: 'screenshot.png', mime: 'image/png', data: 'iVBORw0KGgo=' },
+    ]
+
+    await sendPrompt(baseUrl, auth, 'ses_1', 'look at this image', undefined, undefined, files)
+
+    expect(fetchSpy).toHaveBeenCalledWith(
+      `${baseUrl}/api/session/ses_1/prompt`,
+      expect.objectContaining({
+        method: 'POST',
+        body: JSON.stringify({
+          text: 'look at this image',
+          files: [
+            {
+              uri: 'data:image/png;base64,iVBORw0KGgo=',
+              data: 'iVBORw0KGgo=',
+              mime: 'image/png',
+              name: 'screenshot.png',
+              source: { type: 'inline' },
+            },
+          ],
+        }),
+      })
+    )
+  })
+
   it('interruptSession calls POST /api/session/{id}/interrupt', async () => {
     const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue({
       ok: true,
