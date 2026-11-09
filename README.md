@@ -1,5 +1,6 @@
 # OpenCode Mobile AR 📱
 
+[![Download APK](https://img.shields.io/badge/Download-APK-brightgreen.svg?logo=android)](https://github.com/waleedkkk/opencode-mobile-ar/releases/latest)
 [![Build Android APK](https://github.com/waleedkkk/opencode-mobile-ar/actions/workflows/build-apk.yml/badge.svg)](https://github.com/waleedkkk/opencode-mobile-ar/actions/workflows/build-apk.yml)
 [![Version](https://img.shields.io/badge/version-1.3.0--ar.1-blue.svg)](package.json)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
@@ -10,6 +11,8 @@
 ---
 
 ## 🇸🇦 النسخة العربية
+
+📥 **[تحميل أحدث نسخة أندرويد مباشرة (Download APK)](https://github.com/waleedkkk/opencode-mobile-ar/releases/latest)**
 
 **OpenCode Mobile AR** هي نسخة مطوّرة وخاصة (Fork) من تطبيق [bmpenuelas/opencode-mobile-client](https://github.com/bmpenuelas/opencode-mobile-client). يهدف هذا المشروع إلى تحويل تجربة الجوال من مجرد غلاف لمتصفح الويب (WebView) إلى تطبيق جوال حقيقي فائق السرعة، يدمج بين **واجهة دردشة أصلية بالكامل (Native Chat)**، ودعم شامل وعميق **للغة العربية والاتجاه من اليمين إلى اليسار (RTL)**، مع التوافق التام مع أحدث إصدارات **OpenCode Server v2.2.5+**.
 
@@ -101,10 +104,10 @@ opencode serve --hostname 0.0.0.0 --port 4096
 
 ### 📦 Download Prebuilt APK:
 
-You can download the latest ready-to-install Android APK directly from GitHub Actions without needing Android Studio:
-1. Go to the [Actions tab](https://github.com/waleedkkk/opencode-mobile-ar/actions).
-2. Click on the latest workflow run.
-3. Download the **`OpenCode-Mobile-AR-APK`** artifact at the bottom of the page.
+You can download the latest ready-to-install Android APK directly from the [GitHub Releases page](https://github.com/waleedkkk/opencode-mobile-ar/releases/latest):
+👉 **[Download OpenCode-Mobile-AR-1.3.0.apk](https://github.com/waleedkkk/opencode-mobile-ar/releases/download/v1.3.0-ar.1/OpenCode-Mobile-AR-1.3.0.apk)**
+
+Or from the Artifacts section in the [Actions tab](https://github.com/waleedkkk/opencode-mobile-ar/actions).
 
 ---
 
