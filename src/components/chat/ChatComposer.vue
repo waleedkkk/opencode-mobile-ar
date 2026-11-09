@@ -56,6 +56,21 @@
           <Paperclip class="size-4" />
         </Button>
 
+        <!-- Voice Input Button -->
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon-sm"
+          data-action="voice"
+          :disabled="disabled || streaming"
+          class="size-8 rounded-xl shrink-0 cursor-pointer transition-colors"
+          :class="isListening ? 'text-destructive bg-destructive/15 animate-pulse' : 'text-muted-foreground hover:text-foreground'"
+          :title="isListening ? (t('chat.voiceListening') || 'Listening...') : (t('chat.voicePrompt') || 'Voice input')"
+          @click="toggleVoiceInput"
+        >
+          <Mic class="size-4" />
+        </Button>
+
         <!-- Input container with autogrow textarea -->
         <div class="flex-1 min-w-0 rounded-2xl border border-input bg-card shadow-2xs focus-within:ring-2 focus-within:ring-ring/40 transition-shadow flex items-end px-3 py-1.5">
           <textarea
@@ -105,10 +120,14 @@
 
 <script setup lang="ts">
 import { ref, nextTick } from 'vue'
-import { ArrowUp, Square, Paperclip, X, FileText } from '@lucide/vue'
+import { ArrowUp, Square, Paperclip, X, FileText, Mic } from '@lucide/vue'
 import { Button } from '@/components/ui/button'
 import type { FileAttachment } from '@/types/chat'
 import { useI18n } from '@/i18n'
+import {
+  createSpeechRecognizer,
+  type SpeechRecognizer,
+} from '@/services/platform/speechRecognition'
 
 const props = defineProps<{
   disabled?: boolean
@@ -120,9 +139,11 @@ const emit = defineEmits<{
   interrupt: []
 }>()
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const input = ref('')
 const attachments = ref<FileAttachment[]>([])
+const isListening = ref(false)
+let recognizer: SpeechRecognizer | null = null
 const textareaRef = ref<HTMLTextAreaElement | null>(null)
 const fileInputRef = ref<HTMLInputElement | null>(null)
 
@@ -175,6 +196,34 @@ function removeAttachment(id: string): void {
       URL.revokeObjectURL(item.previewUrl)
     }
     attachments.value.splice(index, 1)
+  }
+}
+
+function toggleVoiceInput(): void {
+  if (isListening.value) {
+    recognizer?.stop()
+    isListening.value = false
+    return
+  }
+
+  recognizer = createSpeechRecognizer({
+    lang: locale.value === 'ar' ? 'ar-SA' : 'en-US',
+    onResult: (text) => {
+      input.value = input.value ? `${input.value.trim()} ${text}` : text
+      adjustHeight()
+    },
+    onError: (err) => {
+      console.warn('[speechRecognition error]', err)
+      isListening.value = false
+    },
+    onEnd: () => {
+      isListening.value = false
+    },
+  })
+
+  if (recognizer) {
+    recognizer.start()
+    isListening.value = recognizer.isListening
   }
 }
 

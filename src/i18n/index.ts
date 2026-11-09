@@ -102,6 +102,8 @@ const en: MessageCatalog = {
   'chat.notifTaskCompletedBody': 'The agent has finished the task.',
   'chat.notifPermissionTitle': 'OpenCode: Permission Required',
   'chat.notifPermissionBody': 'A tool requires your approval to proceed.',
+  'chat.voicePrompt': 'Voice input',
+  'chat.voiceListening': 'Listening...',
 }
 
 const ar: MessageCatalog = {
@@ -272,6 +274,8 @@ const ar: MessageCatalog = {
   'chat.notifTaskCompletedBody': 'أنهى الوكيل معالجة المهمة بنجاح.',
   'chat.notifPermissionTitle': 'OpenCode: إذن مطلوب',
   'chat.notifPermissionBody': 'تتطلب الأداة موافقتك للمتابعة.',
+  'chat.voicePrompt': 'إدخال صوتي',
+  'chat.voiceListening': 'جارٍ الاستماع...',
 }
 
 // Concise, idiomatic wording is preferable to literal translations in a compact mobile UI.

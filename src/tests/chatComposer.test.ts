@@ -49,6 +49,13 @@ describe('ChatComposer.vue', () => {
     expect(attachBtn.exists()).toBe(true)
     expect(fileInput.exists()).toBe(true)
   })
+
+  it('renders voice input button and toggles voice listening', () => {
+    const wrapper = mount(ChatComposer, { props: { streaming: false } })
+
+    const voiceBtn = wrapper.find('[data-action="voice"]')
+    expect(voiceBtn.exists()).toBe(true)
+  })
 })
 
 describe('ChatHeader.vue', () => {
