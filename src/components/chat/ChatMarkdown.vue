@@ -34,6 +34,26 @@ md.renderer.rules.fence = (tokens, idx) => {
   const escapedCode = md.utils.escapeHtml(code)
   const copyLabel = t('chat.copy') || 'Copy'
 
+  let formattedCode = escapedCode
+  if (lang === 'diff' || lang === 'patch') {
+    formattedCode = code
+      .split('\n')
+      .map((line) => {
+        const escaped = md.utils.escapeHtml(line)
+        if (line.startsWith('+') && !line.startsWith('+++')) {
+          return `<span class="bg-green-500/15 text-green-700 dark:text-green-300 block -mx-3 px-3">${escaped}</span>`
+        }
+        if (line.startsWith('-') && !line.startsWith('---')) {
+          return `<span class="bg-destructive/15 text-destructive block -mx-3 px-3">${escaped}</span>`
+        }
+        if (line.startsWith('@@')) {
+          return `<span class="text-muted-foreground/70 block -mx-3 px-3 text-[11px] italic">${escaped}</span>`
+        }
+        return `<span class="block -mx-3 px-3">${escaped}</span>`
+      })
+      .join('')
+  }
+
   return `<div data-code-block dir="ltr" class="my-3 rounded-xl overflow-hidden border border-border bg-muted/50 text-left font-mono text-xs">
   <div class="flex items-center justify-between px-3 py-1.5 bg-muted/90 border-b border-border text-muted-foreground text-[11px] select-none">
     <span class="font-medium uppercase">${lang}</span>
@@ -41,7 +61,7 @@ md.renderer.rules.fence = (tokens, idx) => {
       <span data-copy-label>${copyLabel}</span>
     </button>
   </div>
-  <pre class="p-3 overflow-x-auto m-0!"><code class="language-${lang}">${escapedCode}</code></pre>
+  <pre class="p-3 overflow-x-auto m-0!"><code class="language-${lang}">${formattedCode}</code></pre>
 </div>`
 }
 

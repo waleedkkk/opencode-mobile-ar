@@ -41,6 +41,9 @@
       <div v-else-if="tool.error" class="text-destructive font-medium">
         {{ tool.error }}
       </div>
+      <div v-else-if="tool.result && isDiff" class="-m-2.5">
+        <ChatDiffViewer :diff="tool.result" />
+      </div>
       <div v-else>
         {{ tool.result }}
       </div>
@@ -60,6 +63,8 @@ import {
 } from '@lucide/vue'
 import type { ToolCall } from '@/types/chat'
 import { useI18n } from '@/i18n'
+import ChatDiffViewer from './ChatDiffViewer.vue'
+import { isUnifiedDiff } from '@/services/diff/diffParser'
 
 const props = defineProps<{
   tool: ToolCall
@@ -67,6 +72,7 @@ const props = defineProps<{
 
 const { t } = useI18n()
 const expanded = ref(props.tool.status === 'running')
+const isDiff = computed(() => (props.tool.result ? isUnifiedDiff(props.tool.result) : false))
 
 const toolIcon = computed(() => {
   const name = props.tool.name.toLowerCase()

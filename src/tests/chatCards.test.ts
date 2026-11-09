@@ -39,6 +39,25 @@ describe('ChatToolCallCard.vue', () => {
     await toggleBtn.trigger('click')
     expect(wrapper.find('[data-tool-output]').exists()).toBe(false)
   })
+
+  it('renders ChatDiffViewer when tool result contains a unified diff', async () => {
+    const diffTool: ToolCall = {
+      id: 't_diff',
+      name: 'edit',
+      arguments: { path: 'src/main.ts' },
+      status: 'completed',
+      result: '--- a/src/main.ts\n+++ b/src/main.ts\n@@ -1,2 +1,2 @@\n-const a = 1\n+const a = 2\n',
+    }
+    const wrapper = mount(ChatToolCallCard, { props: { tool: diffTool } })
+
+    // Expand
+    await wrapper.find('[data-action="toggle-tool"]').trigger('click')
+
+    expect(wrapper.find('[data-diff-container]').exists()).toBe(true)
+    expect(wrapper.text()).toContain('src/main.ts')
+    expect(wrapper.text()).toContain('+1')
+    expect(wrapper.text()).toContain('-1')
+  })
 })
 
 describe('ChatPermissionCard.vue', () => {

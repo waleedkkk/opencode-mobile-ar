@@ -52,4 +52,14 @@ describe('ChatMarkdown.vue', () => {
 
     expect(navigator.clipboard.writeText).toHaveBeenCalledWith('print("hi")\n')
   })
+
+  it('highlights diff additions and deletions inside markdown diff blocks', () => {
+    const md = '```diff\n-old line\n+new line\n```'
+    const wrapper = mount(ChatMarkdown, { props: { content: md } })
+
+    expect(wrapper.html()).toContain('text-green-700')
+    expect(wrapper.html()).toContain('text-destructive')
+    expect(wrapper.text()).toContain('new line')
+    expect(wrapper.text()).toContain('old line')
+  })
 })
