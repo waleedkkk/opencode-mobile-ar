@@ -2,6 +2,8 @@ import type {
   ChatAuth,
   ChatMessage,
   SessionInfo,
+  OpenCodeEvent,
+  OpenCodeEventType,
 } from '@/types/chat'
 
 function buildHeaders(auth: ChatAuth, extra: Record<string, string> = {}): Record<string, string> {
@@ -197,3 +199,116 @@ export async function fetchModels(baseUrl: string, auth: ChatAuth): Promise<stri
     return []
   }
 }
+
+function parseSseBlock(block: string): OpenCodeEvent | null {
+  const lines = block.split('\n')
+  let eventType = ''
+  const dataLines: string[] = []
+
+  for (const line of lines) {
+    const trimmed = line.trim()
+    if (!trimmed || trimmed.startsWith(':')) continue
+    if (trimmed.startsWith('event:')) {
+      eventType = trimmed.substring(6).trim()
+    } else if (trimmed.startsWith('data:')) {
+      dataLines.push(trimmed.substring(5).trim())
+    }
+  }
+
+  if (dataLines.length === 0) return null
+
+  try {
+    const dataStr = dataLines.join('\n')
+    const parsed = JSON.parse(dataStr)
+
+    const type = (eventType || parsed.type || 'session.status') as OpenCodeEventType
+    const sessionId = String(parsed.sessionId || parsed.sessionID || '')
+
+    return {
+      type,
+      sessionId,
+      payload: parsed,
+    }
+  } catch {
+    return null
+  }
+}
+
+export class SseBuffer {
+  private buffer = ''
+
+  feed(chunk: string): OpenCodeEvent[] {
+    this.buffer += chunk
+    const parts = this.buffer.split('\n\n')
+    this.buffer = parts.pop() || ''
+
+    const events: OpenCodeEvent[] = []
+    for (const part of parts) {
+      const ev = parseSseBlock(part)
+      if (ev) events.push(ev)
+    }
+    return events
+  }
+}
+
+export function parseSseChunk(chunk: string): OpenCodeEvent[] {
+  const buf = new SseBuffer()
+  return buf.feed(chunk)
+}
+
+export function connectSseStream(
+  baseUrl: string,
+  auth: ChatAuth,
+  onEvent: (event: OpenCodeEvent) => void,
+  onError?: (err: Error) => void
+): () => void {
+  const controller = new AbortController()
+  let isClosed = false
+
+  async function start(): Promise<void> {
+    try {
+      const url = `${cleanBaseUrl(baseUrl)}/api/event`
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: buildHeaders(auth, { 'Accept': 'text/event-stream' }),
+        signal: controller.signal,
+      })
+
+      if (!response.ok) {
+        throw new Error(`SSE stream failed: HTTP ${response.status}`)
+      }
+
+      const body = response.body
+      if (!body) return
+
+      const reader = body.getReader()
+      const decoder = new TextDecoder()
+      const sseBuffer = new SseBuffer()
+
+      while (!isClosed) {
+        const { value, done } = await reader.read()
+        if (done) break
+
+        if (value) {
+          const text = decoder.decode(value, { stream: true })
+          const events = sseBuffer.feed(text)
+          for (const ev of events) {
+            onEvent(ev)
+          }
+        }
+      }
+    } catch (err: any) {
+      if (!isClosed && err?.name !== 'AbortError') {
+        onError?.(err instanceof Error ? err : new Error(String(err)))
+      }
+    }
+  }
+
+  void start()
+
+  return () => {
+    isClosed = true
+    controller.abort()
+  }
+}
+
