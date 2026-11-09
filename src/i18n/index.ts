@@ -98,6 +98,10 @@ const en: MessageCatalog = {
   'chat.selectModel': 'Select model',
   'chat.attachFile': 'Attach file',
   'chat.thinking': 'Thinking...',
+  'chat.notifTaskCompletedTitle': 'OpenCode: Task Completed',
+  'chat.notifTaskCompletedBody': 'The agent has finished the task.',
+  'chat.notifPermissionTitle': 'OpenCode: Permission Required',
+  'chat.notifPermissionBody': 'A tool requires your approval to proceed.',
 }
 
 const ar: MessageCatalog = {
@@ -264,6 +268,10 @@ const ar: MessageCatalog = {
   'chat.selectModel': 'اختر النموذج',
   'chat.attachFile': 'إرفاق ملف',
   'chat.thinking': 'جارٍ التفكير...',
+  'chat.notifTaskCompletedTitle': 'OpenCode: اكتملت المهمة',
+  'chat.notifTaskCompletedBody': 'أنهى الوكيل معالجة المهمة بنجاح.',
+  'chat.notifPermissionTitle': 'OpenCode: إذن مطلوب',
+  'chat.notifPermissionBody': 'تتطلب الأداة موافقتك للمتابعة.',
 }
 
 // Concise, idiomatic wording is preferable to literal translations in a compact mobile UI.

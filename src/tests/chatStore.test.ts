@@ -13,6 +13,10 @@ vi.mock('@/stores/serverStore', () => ({
   }),
 }))
 
+vi.mock('@/services/platform/nativeNotifications', () => ({
+  emitChatTaskNotification: vi.fn().mockResolvedValue({}),
+}))
+
 describe('chatStore', () => {
   let sseCallback: ((ev: OpenCodeEvent) => void) | null = null
 
@@ -191,5 +195,22 @@ describe('chatStore', () => {
 
     expect(chatClient.interruptSession).toHaveBeenCalled()
     expect(store.streamingStatus).toBe('idle')
+  })
+
+  it('emits background task notification when task finishes and app is in background', async () => {
+    const store = useChatStore()
+    await store.initForServer('srv_1')
+    await store.sendMessage('run long background task')
+
+    store.isAppActive = false
+
+    sseCallback!({
+      type: 'session.status',
+      sessionId: 'ses_1',
+      payload: { status: 'idle' },
+    })
+
+    const notifModule = await import('@/services/platform/nativeNotifications')
+    expect(notifModule.emitChatTaskNotification).toHaveBeenCalled()
   })
 })

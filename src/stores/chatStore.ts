@@ -21,6 +21,10 @@ import {
   sendPrompt,
 } from '@/services/opencode/chatClient'
 import { useServerStore } from './serverStore'
+import { t } from '@/i18n'
+import { emitChatTaskNotification } from '@/services/platform/nativeNotifications'
+import { App } from '@capacitor/app'
+import { Capacitor } from '@capacitor/core'
 
 export const useChatStore = defineStore('chat', () => {
   const currentServerId = ref<string | null>(null)
@@ -37,6 +41,13 @@ export const useChatStore = defineStore('chat', () => {
   const availableModels = ref<string[]>([])
   const availableAgents = ref<string[]>([])
   const pendingPermissions = ref<PermissionRequest[]>([])
+  const isAppActive = ref(true)
+
+  if (Capacitor.isNativePlatform()) {
+    void App.addListener('appStateChange', (state) => {
+      isAppActive.value = state.isActive
+    })
+  }
 
   let sseDisconnect: (() => void) | null = null
 
@@ -231,15 +242,28 @@ export const useChatStore = defineStore('chat', () => {
         if (lastMsg && lastMsg.role === 'assistant') {
           lastMsg.pendingPermission = req
         }
+        if (!isAppActive.value) {
+          void emitChatTaskNotification(
+            t('chat.notifPermissionTitle'),
+            t('chat.notifPermissionBody')
+          )
+        }
         break
       }
 
       case 'session.status': {
         const status = String(event.payload.status || 'idle')
         if (status === 'idle') {
+          const wasWorking = streamingStatus.value !== 'idle'
           streamingStatus.value = 'idle'
           if (lastMsg && lastMsg.role === 'assistant') {
             lastMsg.streaming = false
+          }
+          if (wasWorking && !isAppActive.value) {
+            void emitChatTaskNotification(
+              t('chat.notifTaskCompletedTitle'),
+              t('chat.notifTaskCompletedBody')
+            )
           }
         } else if (status === 'thinking') {
           streamingStatus.value = 'thinking'
@@ -302,6 +326,7 @@ export const useChatStore = defineStore('chat', () => {
     availableModels,
     availableAgents,
     pendingPermissions,
+    isAppActive,
     initForServer,
     loadSessions,
     selectSession,

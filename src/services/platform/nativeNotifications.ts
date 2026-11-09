@@ -171,3 +171,27 @@ export async function emitNativeNotificationFromWebMessage(
     }],
   })
 }
+
+export async function emitChatTaskNotification(
+  title: string,
+  body: string,
+  extra: Record<string, unknown> = {}
+): Promise<void> {
+  const settings = await loadNativeNotificationSettings()
+  if (!settings.enabled) return
+  if (!(await hasNotificationPermission())) return
+
+  await LocalNotifications.schedule({
+    notifications: [{
+      id: getNextNotificationId(),
+      title,
+      body,
+      largeBody: body || undefined,
+      channelId: CHANNEL_ID,
+      extra: {
+        source: 'opencode-chat',
+        ...extra,
+      },
+    }],
+  })
+}
