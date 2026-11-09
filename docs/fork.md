@@ -19,8 +19,8 @@ layout direction of the embedded OpenCode WebView.
 | App name | `OpenCode Mobile AR` |
 | App id (Android/iOS) | `com.opencode.mobile.ar` |
 | npm package | `opencode-mobile-client-ar` |
-| Version | `1.2.5-ar.1` |
-| Working branch | `feat/arabic-rtl` |
+| Version | `1.3.0-ar.1` |
+| Main branch | `main` |
 
 Because the app id differs from the published app (`com.logicedge.opencodemobile`),
 this build installs as a separate app. Existing data, saved servers, and secure
@@ -98,6 +98,24 @@ npm test
 npm run build
 node scripts/verify-store-readiness.mjs
 ```
+
+## Phase 2: Native Chat UI
+
+Starting with version `1.3.0-ar.1`, OpenCode Mobile AR features a native chat interface
+powered directly by OpenCode API v2:
+
+- **Default experience:** Connecting to a server opens the Native Chat UI by default.
+  The full OpenCode Web interface remains accessible via the "WebView" button in the header
+  or the sessions drawer.
+- **Real-time SSE streaming:** Tokens, tool calls, and status updates stream live via
+  `GET /api/event`.
+- **Markdown & Code Isolation:** Message bubbles render formatted Markdown with syntax
+  highlighting and copy action. All code blocks and terminal outputs are strictly isolated
+  with `dir="ltr"` inside Arabic RTL conversations.
+- **Tool Cards & Permissions:** OpenCode tool calls (`bash`, `edit`, `read`) render as
+  collapsible interactive cards. Permission prompts appear inline with one-tap Allow/Deny.
+- **Sessions Drawer:** Sliding drawer lists previous sessions, creates new sessions, and
+  provides quick switching to the full WebView.
 
 ## Manual verification pending
 

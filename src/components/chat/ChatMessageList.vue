@@ -80,10 +80,14 @@ function handleScroll(): void {
 function scrollToBottom(smooth = false): void {
   nextTick(() => {
     if (!listContainer.value) return
-    listContainer.value.scrollTo({
-      top: listContainer.value.scrollHeight,
-      behavior: smooth ? 'smooth' : 'auto',
-    })
+    if (typeof listContainer.value.scrollTo === 'function') {
+      listContainer.value.scrollTo({
+        top: listContainer.value.scrollHeight,
+        behavior: smooth ? 'smooth' : 'auto',
+      })
+    } else {
+      listContainer.value.scrollTop = listContainer.value.scrollHeight
+    }
     userIsScrolledUp = false
     showScrollButton.value = false
   })

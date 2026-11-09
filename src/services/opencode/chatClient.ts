@@ -15,7 +15,7 @@ function buildHeaders(auth: ChatAuth, extra: Record<string, string> = {}): Recor
 
   if (auth.username || auth.password) {
     const raw = `${auth.username || 'opencode'}:${auth.password || ''}`
-    const encoded = typeof btoa === 'function' ? btoa(raw) : Buffer.from(raw).toString('base64')
+    const encoded = typeof btoa === 'function' ? btoa(raw) : ((globalThis as any).Buffer ? (globalThis as any).Buffer.from(raw).toString('base64') : raw)
     headers['Authorization'] = `Basic ${encoded}`
   }
 
