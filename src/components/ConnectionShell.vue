@@ -4,6 +4,12 @@
     :profile-name="profile.name"
   />
 
+  <ChatView
+    v-else-if="connectionStore.isConnected && profile"
+    :server-id="profile.id"
+    @open-web-view="launchWebView"
+  />
+
   <div v-else class="fixed inset-0 flex flex-col items-center justify-center z-[1] bg-background">
     <div v-if="loading" class="flex flex-col items-center gap-4">
       <div class="h-8 w-8 animate-spin rounded-full border-4 border-border border-t-foreground" />
@@ -25,6 +31,7 @@ import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { Button } from '@/components/ui/button'
 import DemoSessionMock from '@/components/DemoSessionMock.vue'
+import ChatView from '@/components/chat/ChatView.vue'
 import { InAppBrowser, ToolBarType, BackgroundColor } from '@capgo/capacitor-inappbrowser'
 import { Capacitor } from '@capacitor/core'
 import { App } from '@capacitor/app'
@@ -407,17 +414,7 @@ onMounted(async () => {
 
   connectionStore.lastWebviewServerId = profile.value.id
   demoModeActive.value = await isCurrentProfileDemoMode()
-
-  if (demoModeActive.value) {
-    loading.value = false
-    return
-  }
-
-  if (Capacitor.isNativePlatform()) {
-    await openInAppBrowser()
-  } else {
-    await openInNewTabFallback()
-  }
+  loading.value = false
 })
 
 onUnmounted(() => {
@@ -555,6 +552,14 @@ async function openInNewTabFallback(): Promise<void> {
   errorText.value = t('connection.opened')
 }
 
+async function launchWebView(): Promise<void> {
+  if (Capacitor.isNativePlatform()) {
+    await openInAppBrowser()
+  } else {
+    await openInNewTabFallback()
+  }
+}
+
 async function retry(): Promise<void> {
   errorText.value = ''
   loading.value = true
@@ -563,15 +568,7 @@ async function retry(): Promise<void> {
   if (connected) {
     connectionStore.lastWebviewServerId = profile.value.id
     demoModeActive.value = await isCurrentProfileDemoMode()
-    if (demoModeActive.value) {
-      loading.value = false
-      return
-    }
-    if (Capacitor.isNativePlatform()) {
-      await openInAppBrowser()
-    } else {
-      await openInNewTabFallback()
-    }
+    loading.value = false
   } else {
     loading.value = false
     errorText.value = connectionStore.lastError ?? t('connection.unreachable')
