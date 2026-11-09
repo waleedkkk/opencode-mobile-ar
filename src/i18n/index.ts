@@ -97,6 +97,7 @@ const en: MessageCatalog = {
   'chat.noSessions': 'No sessions yet',
   'chat.selectModel': 'Select model',
   'chat.attachFile': 'Attach file',
+  'chat.thinking': 'Thinking...',
 }
 
 const ar: MessageCatalog = {
@@ -262,6 +263,7 @@ const ar: MessageCatalog = {
   'chat.noSessions': 'لا توجد جلسات سابقة',
   'chat.selectModel': 'اختر النموذج',
   'chat.attachFile': 'إرفاق ملف',
+  'chat.thinking': 'جارٍ التفكير...',
 }
 
 // Concise, idiomatic wording is preferable to literal translations in a compact mobile UI.

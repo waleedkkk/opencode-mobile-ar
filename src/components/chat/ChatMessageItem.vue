@@ -44,7 +44,7 @@
         <!-- Live streaming pulsing dot -->
         <div v-if="message.streaming && !message.content" class="flex items-center gap-1.5 py-1 text-muted-foreground">
           <span class="size-1.5 rounded-full bg-primary animate-ping" />
-          <span class="text-[11px]">Thinking...</span>
+          <span class="text-[11px]">{{ t('chat.thinking') }}</span>
         </div>
       </div>
     </div>

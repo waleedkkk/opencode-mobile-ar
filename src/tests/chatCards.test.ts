@@ -23,21 +23,21 @@ describe('ChatToolCallCard.vue', () => {
   it('isolates output with dir="ltr" and toggles collapse state on click', async () => {
     const wrapper = mount(ChatToolCallCard, { props: { tool } })
 
+    // Completed tools start collapsed to save mobile space
+    expect(wrapper.find('[data-tool-output]').exists()).toBe(false)
+
+    // Click header to expand
+    const toggleBtn = wrapper.find('[data-action="toggle-tool"]')
+    await toggleBtn.trigger('click')
+
     const resultBox = wrapper.find('[data-tool-output]')
     expect(resultBox.exists()).toBe(true)
     expect(resultBox.attributes('dir')).toBe('ltr')
     expect(resultBox.text()).toContain('On branch feat/native-chat')
 
-    // Click header to collapse
-    const toggleBtn = wrapper.find('[data-action="toggle-tool"]')
+    // Click again to collapse
     await toggleBtn.trigger('click')
-
-    // After collapse, output should not be displayed
     expect(wrapper.find('[data-tool-output]').exists()).toBe(false)
-
-    // Click again to expand
-    await toggleBtn.trigger('click')
-    expect(wrapper.find('[data-tool-output]').exists()).toBe(true)
   })
 })
 

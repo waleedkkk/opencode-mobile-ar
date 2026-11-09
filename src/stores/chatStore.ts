@@ -59,7 +59,17 @@ export const useChatStore = defineStore('chat', () => {
       baseUrl.value,
       auth.value,
       (ev) => handleEvent(ev),
-      (err) => console.warn('[chatStore] SSE error:', err)
+      (err) => console.warn('[chatStore] SSE error:', err),
+      async () => {
+        // Reconnection hook: reconcile messages for active session
+        if (currentSessionId.value) {
+          try {
+            await selectSession(currentSessionId.value)
+          } catch (e) {
+            console.warn('[chatStore] failed to reconcile messages on reconnect:', e)
+          }
+        }
+      }
     )
 
     // Load available agents and models in parallel
@@ -214,6 +224,9 @@ export const useChatStore = defineStore('chat', () => {
           state: 'pending',
         }
         pendingPermissions.value.push(req)
+        if (lastMsg && lastMsg.role === 'assistant') {
+          lastMsg.pendingPermission = req
+        }
         break
       }
 
@@ -252,6 +265,11 @@ export const useChatStore = defineStore('chat', () => {
     await replyPermission(baseUrl.value, auth.value, currentSessionId.value, requestId, decision)
 
     pendingPermissions.value = pendingPermissions.value.filter((p) => p.id !== requestId)
+    for (const msg of messages.value) {
+      if (msg.pendingPermission && msg.pendingPermission.id === requestId) {
+        msg.pendingPermission = undefined
+      }
+    }
   }
 
   function cleanup(): void {

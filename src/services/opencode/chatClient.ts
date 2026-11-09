@@ -260,13 +260,18 @@ export function connectSseStream(
   baseUrl: string,
   auth: ChatAuth,
   onEvent: (event: OpenCodeEvent) => void,
-  onError?: (err: Error) => void
+  onError?: (err: Error) => void,
+  onReconnect?: () => void
 ): () => void {
-  const controller = new AbortController()
+  let controller = new AbortController()
   let isClosed = false
+  let reconnectAttempts = 0
+  let reconnectTimer: ReturnType<typeof setTimeout> | null = null
+  const RECONNECT_DELAYS = [1000, 2000, 4000, 8000, 15000]
 
   async function start(): Promise<void> {
     try {
+      controller = new AbortController()
       const url = `${cleanBaseUrl(baseUrl)}/api/event`
       const response = await fetch(url, {
         method: 'GET',
@@ -280,6 +285,11 @@ export function connectSseStream(
 
       const body = response.body
       if (!body) return
+
+      if (reconnectAttempts > 0) {
+        reconnectAttempts = 0
+        onReconnect?.()
+      }
 
       const reader = body.getReader()
       const decoder = new TextDecoder()
@@ -297,17 +307,39 @@ export function connectSseStream(
           }
         }
       }
+
+      // Stream closed by server - schedule reconnect if not manually closed
+      if (!isClosed) {
+        scheduleReconnect()
+      }
     } catch (err: any) {
       if (!isClosed && err?.name !== 'AbortError') {
         onError?.(err instanceof Error ? err : new Error(String(err)))
+        scheduleReconnect()
       }
     }
+  }
+
+  function scheduleReconnect(): void {
+    if (isClosed || reconnectTimer) return
+    const delay = RECONNECT_DELAYS[Math.min(reconnectAttempts, RECONNECT_DELAYS.length - 1)]
+    reconnectAttempts++
+    reconnectTimer = setTimeout(() => {
+      reconnectTimer = null
+      if (!isClosed) {
+        void start()
+      }
+    }, delay)
   }
 
   void start()
 
   return () => {
     isClosed = true
+    if (reconnectTimer) {
+      clearTimeout(reconnectTimer)
+      reconnectTimer = null
+    }
     controller.abort()
   }
 }

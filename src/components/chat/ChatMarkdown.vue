@@ -45,6 +45,23 @@ md.renderer.rules.fence = (tokens, idx) => {
 </div>`
 }
 
+// Open links safely in new tab
+const defaultLinkOpen = md.renderer.rules.link_open || function (tokens, idx, options, _env, self) {
+  return self.renderToken(tokens, idx, options)
+}
+md.renderer.rules.link_open = (tokens, idx, options, env, self) => {
+  tokens[idx].attrSet('target', '_blank')
+  tokens[idx].attrSet('rel', 'noopener noreferrer')
+  return defaultLinkOpen(tokens, idx, options, env, self)
+}
+
+// Wrap indented code blocks in LTR container
+md.renderer.rules.code_block = (tokens, idx) => {
+  const code = tokens[idx].content
+  const escapedCode = md.utils.escapeHtml(code)
+  return `<div data-code-block dir="ltr" class="my-3 rounded-xl overflow-hidden border border-border bg-muted/50 text-left font-mono text-xs"><pre class="p-3 overflow-x-auto m-0!"><code>${escapedCode}</code></pre></div>`
+}
+
 const renderedHtml = computed(() => {
   return md.render(props.content || '')
 })

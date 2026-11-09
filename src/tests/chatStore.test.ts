@@ -128,6 +128,8 @@ describe('chatStore', () => {
     const store = useChatStore()
     await store.initForServer('srv_1')
 
+    await store.sendMessage('run sensitive action')
+
     sseCallback!({
       type: 'session.permission.request',
       sessionId: 'ses_1',
@@ -142,6 +144,10 @@ describe('chatStore', () => {
     expect(store.pendingPermissions).toHaveLength(1)
     expect(store.pendingPermissions[0].id).toBe('p_1')
 
+    const streamingMsg = store.messages[store.messages.length - 1]
+    expect(streamingMsg.pendingPermission).toBeDefined()
+    expect(streamingMsg.pendingPermission?.id).toBe('p_1')
+
     await store.respondPermission('p_1', true)
 
     expect(chatClient.replyPermission).toHaveBeenCalledWith(
@@ -152,6 +158,7 @@ describe('chatStore', () => {
       'allow'
     )
     expect(store.pendingPermissions).toHaveLength(0)
+    expect(streamingMsg.pendingPermission).toBeUndefined()
   })
 
   it('interrupt calls interruptSession and resets streamingStatus', async () => {

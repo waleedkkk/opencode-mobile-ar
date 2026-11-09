@@ -37,7 +37,7 @@
         @click="emit('openWebView')"
       >
         <Globe class="size-3.5" />
-        <span class="hidden sm:inline">WebView</span>
+        <span class="hidden sm:inline">{{ t('chat.openWebView') || 'WebView' }}</span>
       </Button>
     </div>
   </header>

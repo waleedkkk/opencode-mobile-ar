@@ -53,7 +53,7 @@ import { ArrowUp, Square } from '@lucide/vue'
 import { Button } from '@/components/ui/button'
 import { useI18n } from '@/i18n'
 
-defineProps<{
+const props = defineProps<{
   disabled?: boolean
   streaming?: boolean
 }>()
@@ -83,6 +83,7 @@ function handleKeydown(e: KeyboardEvent): void {
 }
 
 function submit(): void {
+  if (props.streaming || props.disabled) return
   const text = input.value.trim()
   if (!text) return
   emit('send', text)

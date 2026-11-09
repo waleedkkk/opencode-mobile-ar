@@ -37,6 +37,7 @@ import { Capacitor } from '@capacitor/core'
 import { App } from '@capacitor/app'
 import { useServerStore } from '@/stores/serverStore'
 import { useConnectionStore } from '@/stores/connectionStore'
+import { useChatStore } from '@/stores/chatStore'
 import { registerBackButton, unregisterBackButton } from '@/services/platform/backButton'
 import { buildIframeUrl } from '@/services/opencode/url'
 import { isDemoModeServer } from '@/services/opencode/demoMode'
@@ -59,6 +60,7 @@ const route = useRoute()
 const router = useRouter()
 const serverStore = useServerStore()
 const connectionStore = useConnectionStore()
+const chatStore = useChatStore()
 const { t } = useI18n()
 
 const loading = ref(true)
@@ -421,6 +423,7 @@ onUnmounted(() => {
   unregisterBackButton()
   removeWebviewListeners()
   resolveNotificationPrompt(false)
+  chatStore.cleanup()
 })
 
 async function isCurrentProfileDemoMode(): Promise<boolean> {
@@ -442,10 +445,8 @@ async function openInAppBrowser(): Promise<void> {
     : buildIframeUrl(profile.value!.baseUrl)
 
   browserClosedHandle = await InAppBrowser.addListener('closeEvent', () => {
-    connectionStore.disconnect()
     removeWebviewListeners()
     resolveNotificationPrompt(false)
-    router.push('/')
   })
 
   messageFromWebviewHandle = await InAppBrowser.addListener('messageFromWebview', (event) => {

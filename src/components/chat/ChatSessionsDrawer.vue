@@ -1,6 +1,6 @@
 <template>
   <Sheet :open="open" @update:open="(val) => emit('update:open', val)">
-    <SheetContent side="left" class="w-[82%] sm:max-w-xs p-0 flex flex-col h-full bg-card">
+    <SheetContent :side="drawerSide" class="w-[82%] sm:max-w-xs p-0 flex flex-col h-full bg-card">
       <!-- Drawer Header -->
       <SheetHeader class="p-4 border-b border-border flex flex-col gap-3">
         <div class="flex items-center justify-between">
@@ -64,6 +64,7 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
 import { MessageSquare, MessageCircle, Plus, Globe } from '@lucide/vue'
 import {
   Sheet,
@@ -74,7 +75,7 @@ import {
 } from '@/components/ui/sheet'
 import { Button } from '@/components/ui/button'
 import type { SessionInfo } from '@/types/chat'
-import { useI18n } from '@/i18n'
+import { useI18n, isRtl } from '@/i18n'
 
 defineProps<{
   open: boolean
@@ -89,5 +90,6 @@ const emit = defineEmits<{
   openWebView: []
 }>()
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
+const drawerSide = computed(() => isRtl(locale.value) ? 'right' : 'left')
 </script>

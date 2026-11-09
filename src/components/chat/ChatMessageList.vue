@@ -109,6 +109,14 @@ watch(
   }
 )
 
+// Auto scroll during active streaming as content grows
+watch(
+  () => props.messages[props.messages.length - 1]?.content,
+  () => {
+    if (props.streaming && !userIsScrolledUp) scrollToBottom()
+  }
+)
+
 onMounted(() => {
   scrollToBottom()
 })

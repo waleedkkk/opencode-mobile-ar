@@ -36,7 +36,7 @@
     >
       <div v-if="tool.status === 'running' && !tool.result" class="flex items-center gap-2 text-primary animate-pulse">
         <Loader2 class="size-3 animate-spin" />
-        <span>Running tool...</span>
+        <span>{{ t('chat.toolRunning') }}</span>
       </div>
       <div v-else-if="tool.error" class="text-destructive font-medium">
         {{ tool.error }}
@@ -66,7 +66,7 @@ const props = defineProps<{
 }>()
 
 const { t } = useI18n()
-const expanded = ref(true)
+const expanded = ref(props.tool.status === 'running')
 
 const toolIcon = computed(() => {
   const name = props.tool.name.toLowerCase()
