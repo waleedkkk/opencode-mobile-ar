@@ -39,8 +39,14 @@ describe('catalogues', () => {
     for (const k of keys) englishMap[k] = t(k)
 
     setLocale('ar')
+    // Brand names and commands that legitimately stay Latin in Arabic UI.
+    const latinExceptions = new Set(['chat.gitTitle'])
     for (const k of keys) {
       const arVal = t(k)
+      if (latinExceptions.has(k)) {
+        expect(arVal).toBe(englishMap[k])
+        continue
+      }
       expect(arVal).toMatch(arabicRegex)
       expect(arVal).not.toBe(englishMap[k])
     }

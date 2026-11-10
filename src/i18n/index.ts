@@ -121,6 +121,16 @@ const en: MessageCatalog = {
   'chat.shellEmpty': 'No command yet',
   'chat.offlineBanner': 'Offline — showing cached session',
   'chat.retryConnection': 'Retry',
+  'chat.loading': 'Loading…',
+  'chat.filesTitle': 'Files',
+  'chat.filesUp': 'Up one level',
+  'chat.filesSearchPlaceholder': 'Search files…',
+  'chat.filesEmpty': 'No files',
+  'chat.gitTitle': 'Git',
+  'chat.gitChanged': 'changed',
+  'chat.gitBranches': 'Branches',
+  'chat.gitClean': 'Working tree clean',
+  'chat.gitNoRepo': 'Not a git repository',
 }
 
 const ar: MessageCatalog = {
@@ -310,6 +320,16 @@ const ar: MessageCatalog = {
   'chat.shellEmpty': 'لم تُنفّذ أي أوامر بعد',
   'chat.offlineBanner': 'دون اتصال — يتم عرض الجلسة المحفوظة',
   'chat.retryConnection': 'إعادة المحاولة',
+  'chat.loading': 'جارٍ التحميل…',
+  'chat.filesTitle': 'الملفات',
+  'chat.filesUp': 'مستوى أعلى',
+  'chat.filesSearchPlaceholder': 'ابحث في الملفات…',
+  'chat.filesEmpty': 'لا توجد ملفات',
+  'chat.gitTitle': 'Git',
+  'chat.gitChanged': 'تغيير',
+  'chat.gitBranches': 'الفروع',
+  'chat.gitClean': 'لا توجد تغييرات',
+  'chat.gitNoRepo': 'ليس مستودع Git',
 }
 
 // Concise, idiomatic wording is preferable to literal translations in a compact mobile UI.

@@ -8,6 +8,8 @@
       @open-drawer="drawerOpen = true"
       @open-web-view="emit('openWebView')"
       @open-quick-shell="quickShellOpen = true"
+      @open-files="filesSheetOpen = true"
+      @open-git="gitSheetOpen = true"
     />
 
     <!-- Offline banner -->
@@ -60,6 +62,21 @@
       :auth="chatStore.auth"
       :session-id="chatStore.currentSessionId"
     />
+
+    <!-- Files Sheet -->
+    <ChatFilesSheet
+      v-model:open="filesSheetOpen"
+      :base-url="chatStore.baseUrl"
+      :auth="chatStore.auth"
+      root-path="/"
+    />
+
+    <!-- Git Sheet -->
+    <ChatGitSheet
+      v-model:open="gitSheetOpen"
+      :base-url="chatStore.baseUrl"
+      :auth="chatStore.auth"
+    />
   </div>
 </template>
 
@@ -73,6 +90,8 @@ import ChatMessageList from './ChatMessageList.vue'
 import ChatComposer from './ChatComposer.vue'
 import ChatSessionsDrawer from './ChatSessionsDrawer.vue'
 import ChatQuickShell from './ChatQuickShell.vue'
+import ChatFilesSheet from './ChatFilesSheet.vue'
+import ChatGitSheet from './ChatGitSheet.vue'
 
 const props = defineProps<{
   serverId: string
@@ -87,6 +106,8 @@ const connectionStore = useConnectionStore()
 const { t } = useI18n()
 const drawerOpen = ref(false)
 const quickShellOpen = ref(false)
+const filesSheetOpen = ref(false)
+const gitSheetOpen = ref(false)
 
 const currentSessionTitle = computed(() => {
   const current = chatStore.sessions.find((s) => s.id === chatStore.currentSessionId)

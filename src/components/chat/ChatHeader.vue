@@ -26,8 +26,30 @@
       </div>
     </div>
 
-    <!-- Right / End: Quick shell + switch to full WebView button -->
+    <!-- Right / End: Git + Files + Quick shell + switch to full WebView button -->
     <div class="flex items-center gap-1 shrink-0">
+      <Button
+        variant="ghost"
+        size="icon-sm"
+        data-action="open-git"
+        class="size-7 text-muted-foreground hover:text-foreground cursor-pointer"
+        :title="t('chat.gitTitle') || 'Git'"
+        @click="emit('openGit')"
+      >
+        <GitBranch class="size-3.5" />
+      </Button>
+
+      <Button
+        variant="ghost"
+        size="icon-sm"
+        data-action="open-files"
+        class="size-7 text-muted-foreground hover:text-foreground cursor-pointer"
+        :title="t('chat.filesTitle') || 'Files'"
+        @click="emit('openFiles')"
+      >
+        <FolderTree class="size-3.5" />
+      </Button>
+
       <Button
         variant="ghost"
         size="icon-sm"
@@ -55,7 +77,7 @@
 </template>
 
 <script setup lang="ts">
-import { Menu, Globe, SquareTerminal } from '@lucide/vue'
+import { Menu, Globe, SquareTerminal, GitBranch, FolderTree } from '@lucide/vue'
 import { Button } from '@/components/ui/button'
 import StatusDot from '@/components/StatusDot.vue'
 import { useI18n } from '@/i18n'
@@ -70,6 +92,8 @@ const emit = defineEmits<{
   openDrawer: []
   openWebView: []
   openQuickShell: []
+  openFiles: []
+  openGit: []
 }>()
 
 const { t } = useI18n()
