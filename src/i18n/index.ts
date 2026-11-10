@@ -167,6 +167,11 @@ const en: MessageCatalog = {
   'chat.credentialInactive': 'inactive',
   'chat.credentialsEmpty': 'No credentials',
   'chat.credentialsReadOnly': 'API keys and OAuth tokens are managed on the server and cannot be viewed or changed here.',
+  'chat.permissionsTitle': 'Permissions',
+  'chat.permissionsEmpty': 'No saved rules',
+  'chat.permissionEffect': 'Effect',
+  'chat.permissionDeleteConfirm': 'Delete this permission rule?',
+  'chat.permissionsHint': 'Saved rules let the agent run matching tools without asking. Changing the effect requires server access.',
 }
 
 const ar: MessageCatalog = {
@@ -402,6 +407,11 @@ const ar: MessageCatalog = {
   'chat.credentialInactive': 'غير نشط',
   'chat.credentialsEmpty': 'لا توجد بيانات اعتماد',
   'chat.credentialsReadOnly': 'تُدار مفاتيح API ورموز OAuth على الخادم ولا يمكن عرضها أو تغييرها من هنا.',
+  'chat.permissionsTitle': 'الأذونات',
+  'chat.permissionsEmpty': 'لا توجد قواعد محفوظة',
+  'chat.permissionEffect': 'التأثير',
+  'chat.permissionDeleteConfirm': 'حذف قاعدة الإذن هذه؟',
+  'chat.permissionsHint': 'تتيح القواعد المحفوظة للوكيل تشغيل الأدوات المطابقة دون سؤال. تغيير التأثير يتطلب صلاحية على الخادم.',
 }
 
 // Concise, idiomatic wording is preferable to literal translations in a compact mobile UI.

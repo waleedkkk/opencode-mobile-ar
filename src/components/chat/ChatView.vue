@@ -12,6 +12,7 @@
       @open-git="gitSheetOpen = true"
       @open-terminal="terminalSheetOpen = true"
       @open-models="modelsSheetOpen = true"
+      @open-permissions="permissionsSheetOpen = true"
       @open-providers="providersSheetOpen = true"
     />
 
@@ -113,6 +114,12 @@
     />
 
     <!-- Providers & credentials sheet -->
+    <ChatPermissionsSheet
+      v-model:open="permissionsSheetOpen"
+      :base-url="chatStore.baseUrl"
+      :auth="chatStore.auth"
+    />
+
     <ChatProvidersSheet
       v-model:open="providersSheetOpen"
       :base-url="chatStore.baseUrl"
@@ -139,6 +146,7 @@ import ChatTerminalSheet from './ChatTerminalSheet.vue'
 import ChatModelsSheet from './ChatModelsSheet.vue'
 import ChatSessionSheet from './ChatSessionSheet.vue'
 import ChatProvidersSheet from './ChatProvidersSheet.vue'
+import ChatPermissionsSheet from './ChatPermissionsSheet.vue'
 
 const props = defineProps<{
   serverId: string
@@ -159,6 +167,7 @@ const terminalSheetOpen = ref(false)
 const modelsSheetOpen = ref(false)
 const sessionSheetOpen = ref(false)
 const providersSheetOpen = ref(false)
+const permissionsSheetOpen = ref(false)
 
 const currentSessionTitle = computed(() => {
   const current = chatStore.sessions.find((s) => s.id === chatStore.currentSessionId)

@@ -69,6 +69,7 @@
         :title="t('chat.modelsTitle') || 'Models'"
         @click="emit('openModels')"
         @click.alt="emit('openProviders')"
+        @click.meta="emit('openPermissions')"
       >
         <Boxes class="size-3.5" />
       </Button>
@@ -106,6 +107,7 @@ const emit = defineEmits<{
   openTerminal: []
   openModels: []
   openProviders: []
+  openPermissions: []
   openFiles: []
   openGit: []
 }>()
