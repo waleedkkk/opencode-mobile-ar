@@ -417,6 +417,11 @@ onMounted(async () => {
   connectionStore.lastWebviewServerId = profile.value.id
   demoModeActive.value = await isCurrentProfileDemoMode()
   loading.value = false
+
+  // Advanced-settings shortcut: open this server straight in the full Web UI.
+  if (route.query.webview === '1' && Capacitor.isNativePlatform()) {
+    await launchWebView()
+  }
 })
 
 onUnmounted(() => {

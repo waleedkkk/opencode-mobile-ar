@@ -60,20 +60,18 @@ describe('ChatView.vue', () => {
     wrapper.unmount()
   })
 
-  it('emits openWebView when WebView button in header or drawer is clicked', async () => {
+  it('keeps the native chat free of a WebView shortcut (moved to advanced settings)', async () => {
     const store = useChatStore()
     await store.initForServer('s1')
 
     const wrapper = mount(ChatView, {
-      props: {
-        serverId: 's1',
-      },
+      props: { serverId: 's1' },
     })
 
-    const webviewBtn = wrapper.find('[data-action="open-webview"]')
-    await webviewBtn.trigger('click')
-
-    expect(wrapper.emitted('openWebView')).toBeTruthy()
+    expect(wrapper.find('[data-action="open-webview"]').exists()).toBe(false)
+    // The native panels must remain reachable.
+    expect(wrapper.find('[data-action="open-files"]').exists()).toBe(true)
+    expect(wrapper.find('[data-action="open-git"]').exists()).toBe(true)
   })
 
   it('creates new session when new session button is clicked in drawer', async () => {

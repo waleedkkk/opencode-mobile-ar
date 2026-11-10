@@ -74,7 +74,7 @@ describe('ChatComposer.vue', () => {
 })
 
 describe('ChatHeader.vue', () => {
-  it('renders title and emits openDrawer and openWebView', async () => {
+  it('renders title and emits openDrawer (WebView moved to advanced settings)', async () => {
     const wrapper = mount(ChatHeader, {
       props: {
         title: 'Project Discussion',
@@ -87,16 +87,12 @@ describe('ChatHeader.vue', () => {
     expect(wrapper.text()).toContain('claude-3-5-sonnet')
 
     const drawerBtn = wrapper.find('[data-action="open-drawer"]')
-    const webviewBtn = wrapper.find('[data-action="open-webview"]')
 
     expect(drawerBtn.exists()).toBe(true)
-    expect(webviewBtn.exists()).toBe(true)
+    expect(wrapper.find('[data-action="open-webview"]').exists()).toBe(false)
 
     await drawerBtn.trigger('click')
     expect(wrapper.emitted('openDrawer')).toBeTruthy()
-
-    await webviewBtn.trigger('click')
-    expect(wrapper.emitted('openWebView')).toBeTruthy()
   })
 })
 

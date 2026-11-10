@@ -63,6 +63,24 @@
         </select>
         <p class="text-xs text-muted-foreground mt-1 leading-relaxed">{{ t('settings.webviewDirectionHint') }}</p>
       </section>
+
+      <section class="mt-4" data-advanced-section>
+        <h2 class="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">{{ t('settings.advanced') }}</h2>
+        <p class="text-xs text-muted-foreground leading-relaxed mb-3">
+          {{ t('settings.advancedHint') }}
+        </p>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          data-action="settings-open-webview"
+          class="w-full justify-center gap-2 text-xs font-medium"
+          @click="openFullWebInterface"
+        >
+          <Globe class="size-3.5" />
+          <span>{{ t('settings.openFullWeb') }}</span>
+        </Button>
+      </section>
     </div>
   </div>
 </template>
@@ -70,7 +88,7 @@
 <script setup lang="ts">
 import { onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import { ArrowLeft } from '@lucide/vue'
+import { ArrowLeft, Globe } from '@lucide/vue'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -88,9 +106,11 @@ import {
   setWebviewDirection,
   type WebviewDirection,
 } from '@/services/storage/uiPreferences'
+import { useServerStore } from '@/stores/serverStore'
 
 const router = useRouter()
 const connectionStore = useConnectionStore()
+const serverStore = useServerStore()
 const { t, locale, setLocale, supportedLocales } = useI18n()
 
 const timeoutMs = ref(connectionStore.healthCheckTimeout)
@@ -128,6 +148,20 @@ onMounted(async () => {
   notificationsEnabled.value = settings.enabled
   notificationsLoaded = true
 })
+
+/**
+ * Advanced action: open the last connected (or default) server directly in the
+ * full OpenCode Web interface. The connect route reacts to the ?webview=1 flag.
+ */
+function openFullWebInterface(): void {
+  const serverId =
+    connectionStore.activeServerId ??
+    serverStore.profiles.find((p) => p.isDefault)?.id ??
+    serverStore.profiles[0]?.id
+
+  if (!serverId) return
+  router.push(`/connect/${serverId}?webview=1`)
+}
 
 function goBack(): void { router.push('/') }
 </script>

@@ -26,7 +26,7 @@
       </div>
     </div>
 
-    <!-- Right / End: Git + Files + Quick shell + switch to full WebView button -->
+    <!-- Right / End: Git, Files, Terminal, Models, Quick shell -->
     <div class="flex items-center gap-1 shrink-0">
       <Button
         variant="ghost"
@@ -83,23 +83,12 @@
         <SquareTerminal class="size-3.5" />
       </Button>
 
-      <Button
-        variant="outline"
-        size="xs"
-        data-action="open-webview"
-        class="h-7 text-xs font-medium gap-1 text-muted-foreground hover:text-foreground"
-        :title="t('chat.openWebView') || 'Open in WebView'"
-        @click="emit('openWebView')"
-      >
-        <Globe class="size-3.5" />
-        <span class="hidden sm:inline">{{ t('chat.openWebView') || 'WebView' }}</span>
-      </Button>
     </div>
   </header>
 </template>
 
 <script setup lang="ts">
-import { Menu, Globe, SquareTerminal, GitBranch, FolderTree, Boxes } from '@lucide/vue'
+import { Menu, SquareTerminal, GitBranch, FolderTree, Boxes } from '@lucide/vue'
 import { Button } from '@/components/ui/button'
 import StatusDot from '@/components/StatusDot.vue'
 import { useI18n } from '@/i18n'
@@ -112,7 +101,6 @@ defineProps<{
 
 const emit = defineEmits<{
   openDrawer: []
-  openWebView: []
   openQuickShell: []
   openTerminal: []
   openModels: []

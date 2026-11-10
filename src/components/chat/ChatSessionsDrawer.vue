@@ -45,7 +45,7 @@
         </button>
       </div>
 
-      <!-- Drawer Footer: session details + switch to WebView -->
+      <!-- Drawer Footer: session details -->
       <div class="p-3 border-t border-border bg-muted/30 flex flex-col gap-1.5">
         <Button
           v-if="currentSessionId"
@@ -60,17 +60,6 @@
           <span>{{ t('chat.sessionDetails') || 'Session details' }}</span>
         </Button>
 
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          data-action="drawer-webview"
-          class="w-full justify-center gap-2 text-xs font-medium"
-          @click="emit('openWebView')"
-        >
-          <Globe class="size-3.5" />
-          <span>{{ t('chat.switchToWebView') || 'Switch to Full Web UI' }}</span>
-        </Button>
       </div>
     </SheetContent>
   </Sheet>
@@ -78,7 +67,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { MessageSquare, MessageCircle, Plus, Globe, Info } from '@lucide/vue'
+import { MessageSquare, MessageCircle, Plus, Info } from '@lucide/vue'
 import {
   Sheet,
   SheetContent,
@@ -100,7 +89,6 @@ const emit = defineEmits<{
   'update:open': [val: boolean]
   select: [id: string]
   newSession: []
-  openWebView: []
   openSessionDetails: []
 }>()
 
