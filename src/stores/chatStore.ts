@@ -195,7 +195,8 @@ export const useChatStore = defineStore('chat', () => {
    */
   function readableTitle(title: string, createdAt: string): string {
     if (title && title.trim()) return title.trim()
-    const stamp = Number(createdAt)
+    const raw = (createdAt || '').trim()
+    const stamp = /^[0-9]+$/.test(raw) ? Number(raw) : Date.parse(raw)
     if (!Number.isFinite(stamp) || stamp <= 0) return t('chat.sessionUntitled')
     const date = new Date(stamp).toISOString().slice(0, 10)
     return t('chat.sessionUntitled') + ' ' + date

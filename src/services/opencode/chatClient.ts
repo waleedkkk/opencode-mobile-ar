@@ -60,7 +60,7 @@ export async function fetchSessions(baseUrl: string, auth: ChatAuth): Promise<Se
 
   return data.map((item: any) => ({
     id: String(item.id || item.sessionID || ''),
-    title: String(item.title || item.name || 'Untitled session'),
+    title: String(item.title || item.name || ''),
     createdAt: formatTimestamp(item.time?.created || item.createdAt || item.created),
     updatedAt: formatTimestamp(item.time?.updated || item.updatedAt || item.updated),
   }))
