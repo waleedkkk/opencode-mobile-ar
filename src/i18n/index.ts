@@ -119,6 +119,8 @@ const en: MessageCatalog = {
   'chat.shellRunning': 'Running…',
   'chat.shellExit': 'Exit code',
   'chat.shellEmpty': 'No command yet',
+  'chat.offlineBanner': 'Offline — showing cached session',
+  'chat.retryConnection': 'Retry',
 }
 
 const ar: MessageCatalog = {
@@ -306,6 +308,8 @@ const ar: MessageCatalog = {
   'chat.shellRunning': 'جارٍ التشغيل…',
   'chat.shellExit': 'رمز الخروج',
   'chat.shellEmpty': 'لم تُنفّذ أي أوامر بعد',
+  'chat.offlineBanner': 'دون اتصال — يتم عرض الجلسة المحفوظة',
+  'chat.retryConnection': 'إعادة المحاولة',
 }
 
 // Concise, idiomatic wording is preferable to literal translations in a compact mobile UI.

@@ -23,6 +23,10 @@ import {
 import { useServerStore } from './serverStore'
 import { t } from '@/i18n'
 import { emitChatTaskNotification } from '@/services/platform/nativeNotifications'
+import {
+  loadOfflineSnapshot,
+  saveOfflineSnapshot,
+} from '@/services/storage/offlineCache'
 import { App } from '@capacitor/app'
 import { Capacitor } from '@capacitor/core'
 
@@ -42,6 +46,7 @@ export const useChatStore = defineStore('chat', () => {
   const availableAgents = ref<string[]>([])
   const pendingPermissions = ref<PermissionRequest[]>([])
   const isAppActive = ref(true)
+  const isOffline = ref(false)
 
   if (Capacitor.isNativePlatform()) {
     void App.addListener('appStateChange', (state) => {
@@ -66,6 +71,9 @@ export const useChatStore = defineStore('chat', () => {
       password: profile.authEnabled && pw ? pw : undefined,
     }
 
+    // Show the last cached session immediately so the screen is never empty
+    restoreOfflineSnapshot(serverId)
+
     // Connect SSE stream
     sseDisconnect = connectSseStream(
       baseUrl.value,
@@ -84,29 +92,59 @@ export const useChatStore = defineStore('chat', () => {
       }
     )
 
-    // Load available agents and models in parallel
-    const [agents, models] = await Promise.all([
-      fetchAgents(baseUrl.value, auth.value),
-      fetchModels(baseUrl.value, auth.value),
-    ])
-    availableAgents.value = agents
-    if (agents.length > 0 && !agents.includes(activeAgent.value)) {
-      activeAgent.value = agents[0]
-    }
+    try {
+      // Load available agents and models in parallel
+      const [agents, models] = await Promise.all([
+        fetchAgents(baseUrl.value, auth.value),
+        fetchModels(baseUrl.value, auth.value),
+      ])
+      availableAgents.value = agents
+      if (agents.length > 0 && !agents.includes(activeAgent.value)) {
+        activeAgent.value = agents[0]
+      }
 
-    availableModels.value = models
-    if (models.length > 0 && !activeModel.value) {
-      activeModel.value = models[0]
-    }
+      availableModels.value = models
+      if (models.length > 0 && !activeModel.value) {
+        activeModel.value = models[0]
+      }
 
-    // Load sessions
-    await loadSessions()
+      // Load sessions
+      await loadSessions()
 
-    if (sessions.value.length > 0) {
-      await selectSession(sessions.value[0].id)
-    } else {
-      await newSession()
+      if (sessions.value.length > 0) {
+        await selectSession(sessions.value[0].id)
+      } else {
+        await newSession()
+      }
+    } catch (err) {
+      // Network failure: keep the cached session on screen (offline reading mode)
+      console.warn('[chatStore] server unreachable, showing cached session:', err)
+      isOffline.value = true
     }
+  }
+
+  function restoreOfflineSnapshot(serverId: string): void {
+    const snapshot = loadOfflineSnapshot()
+    if (!snapshot || snapshot.serverId !== serverId) return
+
+    sessions.value = snapshot.sessions
+    currentSessionId.value = snapshot.currentSessionId
+    messages.value = snapshot.messages.map((m) => ({ ...m, streaming: false }))
+  }
+
+  function persistOfflineSnapshot(): void {
+    if (!currentServerId.value) return
+    const serverStore = useServerStore()
+    const profile = serverStore.profiles.find((p) => p.id === currentServerId.value)
+
+    saveOfflineSnapshot({
+      serverId: currentServerId.value,
+      serverName: profile?.name || profile?.baseUrl || 'OpenCode server',
+      currentSessionId: currentSessionId.value,
+      sessions: sessions.value,
+      messages: messages.value,
+      savedAt: Date.now(),
+    })
   }
 
   async function loadSessions(): Promise<void> {
@@ -120,8 +158,18 @@ export const useChatStore = defineStore('chat', () => {
     pendingPermissions.value = []
     streamingStatus.value = 'idle'
     if (!baseUrl.value) return
-    const history = await fetchSessionMessages(baseUrl.value, auth.value, sessionId)
-    messages.value = history
+    try {
+      const history = await fetchSessionMessages(baseUrl.value, auth.value, sessionId)
+      messages.value = history
+      isOffline.value = false
+      persistOfflineSnapshot()
+    } catch (err) {
+      console.warn('[chatStore] failed to load session history:', err)
+      // Preserve cached messages if present, otherwise surface the empty state
+      if (messages.value.length === 0) {
+        messages.value = []
+      }
+    }
   }
 
   async function newSession(title?: string): Promise<SessionInfo | null> {
@@ -227,6 +275,7 @@ export const useChatStore = defineStore('chat', () => {
           }
         }
         streamingStatus.value = 'streaming'
+        persistOfflineSnapshot()
         break
       }
 
@@ -258,6 +307,9 @@ export const useChatStore = defineStore('chat', () => {
           streamingStatus.value = 'idle'
           if (lastMsg && lastMsg.role === 'assistant') {
             lastMsg.streaming = false
+          }
+          if (wasWorking) {
+            persistOfflineSnapshot()
           }
           if (wasWorking && !isAppActive.value) {
             void emitChatTaskNotification(
@@ -327,6 +379,7 @@ export const useChatStore = defineStore('chat', () => {
     availableAgents,
     pendingPermissions,
     isAppActive,
+    isOffline,
     initForServer,
     loadSessions,
     selectSession,

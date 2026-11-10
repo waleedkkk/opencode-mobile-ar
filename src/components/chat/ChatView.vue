@@ -10,6 +10,22 @@
       @open-quick-shell="quickShellOpen = true"
     />
 
+    <!-- Offline banner -->
+    <div
+      v-if="chatStore.isOffline"
+      data-offline-banner
+      class="flex items-center justify-between gap-2 px-3 py-1.5 bg-amber-500/15 border-b border-amber-500/30 text-amber-700 dark:text-amber-300 text-[11px] font-medium"
+    >
+      <span>{{ t('chat.offlineBanner') }}</span>
+      <button
+        type="button"
+        class="underline shrink-0 cursor-pointer"
+        @click="retryConnection"
+      >
+        {{ t('chat.retryConnection') }}
+      </button>
+    </div>
+
     <!-- Message history list -->
     <ChatMessageList
       :messages="chatStore.messages"
@@ -49,6 +65,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
+import { useI18n } from '@/i18n'
 import { useChatStore } from '@/stores/chatStore'
 import { useConnectionStore } from '@/stores/connectionStore'
 import ChatHeader from './ChatHeader.vue'
@@ -67,6 +84,7 @@ const emit = defineEmits<{
 
 const chatStore = useChatStore()
 const connectionStore = useConnectionStore()
+const { t } = useI18n()
 const drawerOpen = ref(false)
 const quickShellOpen = ref(false)
 
@@ -84,6 +102,12 @@ onMounted(async () => {
     await chatStore.initForServer(props.serverId)
   }
 })
+
+async function retryConnection(): Promise<void> {
+  if (props.serverId) {
+    await chatStore.initForServer(props.serverId)
+  }
+}
 
 async function handleSelectSession(sessionId: string): Promise<void> {
   drawerOpen.value = false
