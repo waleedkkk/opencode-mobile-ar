@@ -4,6 +4,7 @@ import { setActivePinia, createPinia } from 'pinia'
 import ChatView from '@/components/chat/ChatView.vue'
 import * as projectClient from '@/services/opencode/projectClient'
 import * as chatClient from '@/services/opencode/chatClient'
+import * as modelsClient from '@/services/opencode/modelsClient'
 
 vi.mock('@/stores/serverStore', () => ({
   useServerStore: () => ({
@@ -27,6 +28,7 @@ describe('ChatView project switching', () => {
     vi.spyOn(chatClient, 'fetchSessionMessages').mockResolvedValue([])
     vi.spyOn(chatClient, 'fetchAgents').mockResolvedValue(['general'])
     vi.spyOn(chatClient, 'fetchModels').mockResolvedValue(['gpt'])
+    vi.spyOn(modelsClient, 'fetchModelGroups').mockResolvedValue([])
     vi.spyOn(projectClient, 'fetchProjects').mockResolvedValue([
       { id: 'prj_1', name: 'app', directory: '/workspace/app' },
       { id: 'prj_2', name: 'other', directory: '/workspace/other' },

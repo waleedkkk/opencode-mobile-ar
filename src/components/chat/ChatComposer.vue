@@ -1,6 +1,70 @@
 <template>
   <footer class="border-t border-border bg-background/95 backdrop-blur px-3 py-2 z-10">
     <div class="max-w-3xl mx-auto flex flex-col gap-2">
+      <!-- Model and agent pickers -->
+      <div class="flex items-center gap-1.5 px-1 flex-wrap">
+        <button
+          type="button"
+          data-action="pick-model"
+          class="inline-flex items-center gap-1 px-2 py-1 rounded-full border border-border bg-card text-[11px] font-medium cursor-pointer hover:bg-muted transition-colors max-w-[60%]"
+          :title="t('chat.selectModel') || 'Select model'"
+          @click="modelPickerOpen = !modelPickerOpen; agentPickerOpen = false"
+        >
+          <Boxes class="size-3 text-primary shrink-0" />
+          <span class="truncate" dir="ltr">{{ shortModel(activeModel) }}</span>
+        </button>
+        <button
+          type="button"
+          data-action="pick-agent"
+          class="inline-flex items-center gap-1 px-2 py-1 rounded-full border border-border bg-card text-[11px] font-medium cursor-pointer hover:bg-muted transition-colors"
+          :title="t('chat.selectAgent') || 'Select agent'"
+          @click="agentPickerOpen = !agentPickerOpen; modelPickerOpen = false"
+        >
+          <Bot class="size-3 text-primary shrink-0" />
+          <span class="truncate" dir="ltr">{{ activeAgent }}</span>
+        </button>
+      </div>
+
+      <!-- Model list -->
+      <div v-if="modelPickerOpen" data-model-list class="rounded-xl border border-border bg-card p-1.5 flex flex-col gap-1 max-h-52 overflow-y-auto">
+        <button
+          v-for="group in modelGroups"
+          :key="group.provider"
+          type="button"
+          class="flex flex-col gap-1"
+        >
+          <span class="px-2 py-0.5 text-[10px] uppercase tracking-wide text-muted-foreground">{{ group.providerName || group.provider }}</span>
+          <button
+            v-for="model in group.models"
+            :key="model"
+            type="button"
+            :data-model-option="model"
+            class="flex items-center justify-between gap-2 px-2.5 py-1.5 rounded-lg text-start hover:bg-muted/80 cursor-pointer"
+            :class="model === activeModel ? 'text-primary font-semibold' : 'text-foreground'"
+            @click="pickModel(model)"
+          >
+            <span class="text-[11px] font-mono truncate" dir="ltr">{{ model }}</span>
+            <Check v-if="model === activeModel" class="size-3.5 shrink-0" />
+          </button>
+        </button>
+      </div>
+
+      <!-- Agent list -->
+      <div v-if="agentPickerOpen" data-agent-list class="rounded-xl border border-border bg-card p-1.5 flex flex-col gap-0.5 max-h-52 overflow-y-auto">
+        <button
+          v-for="agent in availableAgents"
+          :key="agent"
+          type="button"
+          :data-agent-option="agent"
+          class="flex items-center justify-between gap-2 px-2.5 py-1.5 rounded-lg text-start hover:bg-muted/80 cursor-pointer"
+          :class="agent === activeAgent ? 'text-primary font-semibold' : 'text-foreground'"
+          @click="pickAgent(agent)"
+        >
+          <span class="text-[11px] font-mono truncate" dir="ltr">{{ agent }}</span>
+          <Check v-if="agent === activeAgent" class="size-3.5 shrink-0" />
+        </button>
+      </div>
+
       <!-- Attached files preview strip -->
       <div
         v-if="attachments.length > 0"
@@ -158,11 +222,18 @@ import {
 const props = defineProps<{
   disabled?: boolean
   streaming?: boolean
+  availableModels?: string[]
+  availableAgents?: string[]
+  activeModel?: string
+  activeAgent?: string
+  modelGroups?: { provider: string; providerName: string; models: string[] }[]
 }>()
 
 const emit = defineEmits<{
   send: [text: string, files?: FileAttachment[]]
   interrupt: []
+  'select-model': [modelId: string]
+  'select-agent': [agentId: string]
 }>()
 
 const { t, locale } = useI18n()
@@ -172,6 +243,26 @@ const isListening = ref(false)
 let recognizer: SpeechRecognizer | null = null
 const textareaRef = ref<HTMLTextAreaElement | null>(null)
 const fileInputRef = ref<HTMLInputElement | null>(null)
+const modelPickerOpen = ref(false)
+const agentPickerOpen = ref(false)
+
+const modelGroups = computed(() => props.modelGroups ?? [])
+
+function shortModel(model: string | undefined): string {
+      if (!model) return t('chat.selectModel') || 'Model'
+      const slash = model.lastIndexOf('/')
+      return slash > 0 ? model.slice(slash + 1) : model
+    }
+
+function pickModel(model: string): void {
+      modelPickerOpen.value = false
+      emit('select-model', model)
+    }
+
+function pickAgent(agent: string): void {
+      agentPickerOpen.value = false
+      emit('select-agent', agent)
+    }
 
 const showSlashMenu = computed(() => input.value.startsWith('/') && !props.streaming)
 const filteredCommands = computed(() => filterSlashCommands(input.value))

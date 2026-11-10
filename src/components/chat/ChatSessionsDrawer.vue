@@ -38,7 +38,7 @@
             :class="project.id === currentProjectID ? 'bg-primary text-primary-foreground border-primary' : 'border-border bg-background text-foreground hover:bg-muted'"
             @click="emit('selectProject', project.id)"
           >
-            {{ project.name || project.id }}
+            {{ (projectNames && projectNames[project.id]) || project.id }}
           </button>
         </div>
       </div>
@@ -106,6 +106,7 @@ defineProps<{
   projects?: { id: string; name: string; directory: string }[]
   currentDirectory?: string
   currentProjectID?: string
+  projectNames?: Record<string, string>
 }>()
 
 const emit = defineEmits<{

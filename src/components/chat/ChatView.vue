@@ -48,8 +48,15 @@
     <ChatComposer
       :disabled="chatStore.streamingStatus === 'thinking' || chatStore.streamingStatus === 'tool_running'"
       :streaming="chatStore.streamingStatus !== 'idle'"
+      :available-models="chatStore.availableModels"
+      :available-agents="chatStore.availableAgents"
+      :model-groups="chatStore.modelGroups"
+      :active-model="chatStore.activeModel"
+      :active-agent="chatStore.activeAgent"
       @send="(text, files) => chatStore.sendMessage(text, files)"
       @interrupt="chatStore.interrupt"
+      @select-model="handleModelSelected"
+      @select-agent="handleAgentSelected"
     />
 
     <!-- Sessions Drawer -->
@@ -60,6 +67,7 @@
       :projects="chatStore.projects"
       :current-directory="chatStore.currentDirectory"
       :current-project-i-d="chatStore.currentProjectID"
+      :project-names="chatStore.projectNames"
       @select="handleSelectSession"
       @new-session="handleNewSession"
       @open-web-view="handleOpenWebViewFromDrawer"
@@ -229,6 +237,17 @@ async function handleSelectProject(projectId: string): Promise<void> {
 
 function openSessionDetails(): void {
   sessionSheetOpen.value = true
+}
+
+async function handleAgentSelected(agentId: string): Promise<void> {
+  chatStore.activeAgent = agentId
+  if (!chatStore.baseUrl || !chatStore.currentSessionId) return
+  try {
+    const { switchSessionAgent } = await import('@/services/opencode/modelsClient')
+    await switchSessionAgent(chatStore.baseUrl, chatStore.auth, chatStore.currentSessionId, agentId)
+  } catch (err) {
+    console.warn('[chat] agent switch failed:', err)
+  }
 }
 
 async function handleModelSelected(modelId: string): Promise<void> {

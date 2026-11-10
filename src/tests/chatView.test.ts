@@ -4,6 +4,7 @@ import { setActivePinia, createPinia } from 'pinia'
 import ChatView from '@/components/chat/ChatView.vue'
 import { useChatStore } from '@/stores/chatStore'
 import * as chatClient from '@/services/opencode/chatClient'
+import * as modelsClient from '@/services/opencode/modelsClient'
 
 vi.mock('@/stores/serverStore', () => ({
   useServerStore: () => ({
@@ -26,7 +27,9 @@ describe('ChatView.vue', () => {
     ])
     vi.spyOn(chatClient, 'fetchSessionMessages').mockResolvedValue([])
     vi.spyOn(chatClient, 'fetchAgents').mockResolvedValue(['general'])
-    vi.spyOn(chatClient, 'fetchModels').mockResolvedValue(['gpt-4o'])
+    vi.spyOn(modelsClient, 'fetchModelGroups').mockResolvedValue([])
+vi.spyOn(chatClient, 'fetchModels').mockResolvedValue(['gpt-4o'])
+
     vi.spyOn(chatClient, 'createSession').mockResolvedValue({
       id: 'ses_3',
       title: 'New Session',

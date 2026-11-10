@@ -17,10 +17,15 @@ vi.mock('@/services/opencode/chatClient', () => ({
   fetchSessionMessages: vi.fn().mockResolvedValue([]),
   fetchAgents: vi.fn().mockResolvedValue(['general']),
   fetchModels: vi.fn().mockResolvedValue(['gpt']),
+  fetchModelGroups: vi.fn().mockResolvedValue([]),
   createSession: vi.fn().mockResolvedValue({ id: 'ses_2', title: 'New', createdAt: 'x', updatedAt: 'y' }),
   sendPrompt: vi.fn().mockResolvedValue(undefined),
   interruptSession: vi.fn().mockResolvedValue(undefined),
   replyPermission: vi.fn().mockResolvedValue(undefined),
+}))
+
+vi.mock('@/services/opencode/modelsClient', () => ({
+  fetchModelGroups: vi.fn().mockResolvedValue([]),
 }))
 
 vi.mock('@/services/platform/nativeNotifications', () => ({

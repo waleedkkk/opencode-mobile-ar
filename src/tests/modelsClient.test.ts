@@ -15,22 +15,31 @@ describe('modelsClient', () => {
     vi.restoreAllMocks()
   })
 
-  it('fetchProviders maps provider and model info', async () => {
-    vi.spyOn(globalThis, 'fetch').mockResolvedValue({
-      ok: true,
-      json: async () => ({
-        data: [
+  it('fetchProviders maps provider and model info, merging config models', async () => {
+    vi.spyOn(globalThis, 'fetch')
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ data: [{ id: 'anthropic', name: 'Anthropic' }] }),
+      } as Response)
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => [
           {
-            id: 'anthropic',
-            name: 'Anthropic',
-            models: [
-              { id: 'anthropic/claude-3-5-sonnet', name: 'Claude 3.5 Sonnet' },
-              { id: 'anthropic/claude-3-opus', name: 'Claude 3 Opus' },
-            ],
+            type: 'document',
+            info: {
+              providers: {
+                anthropic: {
+                  name: 'Anthropic',
+                  models: {
+                    'anthropic/claude-3-5-sonnet': {},
+                    'anthropic/claude-3-opus': {},
+                  },
+                },
+              },
+            },
           },
         ],
-      }),
-    } as Response)
+      } as Response)
 
     const providers = await fetchProviders(baseUrl, auth)
 

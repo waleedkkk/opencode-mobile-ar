@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import type {
   ChatAuth,
   ChatMessage,
@@ -13,7 +13,6 @@ import {
   connectSseStream,
   createSession,
   fetchAgents,
-  fetchModels,
   fetchSessionMessages,
   fetchSessions,
   interruptSession,
@@ -36,6 +35,10 @@ import {
   type ProjectSummary,
 } from '@/services/opencode/projectClient'
 import {
+  fetchModelGroups,
+  type ModelGroup,
+} from '@/services/opencode/modelsClient'
+import {
   fetchPendingForms,
   replyToForm,
   type PendingForm,
@@ -55,11 +58,24 @@ export const useChatStore = defineStore('chat', () => {
   const activeModel = ref<string>('')
   const activeAgent = ref<string>('general')
   const availableModels = ref<string[]>([])
+  const modelGroups = ref<ModelGroup[]>([])
   const availableAgents = ref<string[]>([])
   const pendingPermissions = ref<PermissionRequest[]>([])
   const isAppActive = ref(true)
   const isOffline = ref(false)
   const projects = ref<ProjectSummary[]>([])
+
+  /**
+   * Projects have no human name on the server; their canonical directory is
+   * the only meaningful label, so hex ids must never reach the UI.
+   */
+  const projectNames = computed<Record<string, string>>(() => {
+    const names: Record<string, string> = {}
+    for (const project of projects.value) {
+      names[project.id] = project.directory || project.name || project.id
+    }
+    return names
+  })
   const currentDirectory = ref('')
   const currentProjectID = ref('')
   const projectError = ref('')
@@ -113,15 +129,17 @@ export const useChatStore = defineStore('chat', () => {
 
     try {
       // Load available agents and models in parallel
-      const [agents, models] = await Promise.all([
+      const [agents, groups] = await Promise.all([
         fetchAgents(baseUrl.value, auth.value),
-        fetchModels(baseUrl.value, auth.value),
+        fetchModelGroups(baseUrl.value, auth.value),
       ])
       availableAgents.value = agents
       if (agents.length > 0 && !agents.includes(activeAgent.value)) {
         activeAgent.value = agents[0]
       }
 
+      modelGroups.value = groups
+      const models = groups.flatMap((group) => group.models)
       availableModels.value = models
       if (models.length > 0 && !activeModel.value) {
         activeModel.value = models[0]
@@ -170,10 +188,26 @@ export const useChatStore = defineStore('chat', () => {
     })
   }
 
+  /**
+   * Sessions created from scratch have no title, so the API returns the raw
+   * ses_ identifier. Showing that in the drawer is useless, so fall back to
+   * a readable date.
+   */
+  function readableTitle(title: string, createdAt: string): string {
+    if (title && title.trim()) return title.trim()
+    const stamp = Number(createdAt)
+    if (!Number.isFinite(stamp) || stamp <= 0) return t('chat.sessionUntitled')
+    const date = new Date(stamp).toISOString().slice(0, 10)
+    return t('chat.sessionUntitled') + ' ' + date
+  }
+
   async function loadSessions(): Promise<void> {
     if (!baseUrl.value) return
     const list = await fetchSessions(baseUrl.value, auth.value)
-    sessions.value = list
+    sessions.value = list.map((s) => ({
+      ...s,
+      title: readableTitle(s.title, s.createdAt),
+    }))
   }
 
   async function selectSession(sessionId: string): Promise<void> {
@@ -471,6 +505,7 @@ export const useChatStore = defineStore('chat', () => {
     activeModel,
     activeAgent,
     availableModels,
+    modelGroups,
     availableAgents,
     pendingPermissions,
     isAppActive,
@@ -478,6 +513,7 @@ export const useChatStore = defineStore('chat', () => {
     pendingForms,
     formError,
     projects,
+    projectNames,
     currentDirectory,
     currentProjectID,
     projectError,

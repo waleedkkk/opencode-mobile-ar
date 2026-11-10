@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
 import { useChatStore } from '@/stores/chatStore'
 import * as chatClient from '@/services/opencode/chatClient'
+import * as modelsClient from '@/services/opencode/modelsClient'
 import type { OpenCodeEvent } from '@/types/chat'
 
 vi.mock('@/stores/serverStore', () => ({
@@ -40,7 +41,8 @@ describe('chatStore', () => {
     ])
 
     vi.spyOn(chatClient, 'fetchAgents').mockResolvedValue(['general', 'coder'])
-    vi.spyOn(chatClient, 'fetchModels').mockResolvedValue(['anthropic/claude-3-5-sonnet'])
+    vi.spyOn(modelsClient, 'fetchModelGroups').mockResolvedValue([])
+
     vi.spyOn(chatClient, 'sendPrompt').mockResolvedValue(undefined)
     vi.spyOn(chatClient, 'interruptSession').mockResolvedValue(undefined)
     vi.spyOn(chatClient, 'replyPermission').mockResolvedValue(undefined)
@@ -84,8 +86,8 @@ describe('chatStore', () => {
       expect.any(Object),
       'ses_1',
       'Check this photo',
-      expect.anything(),
-      expect.anything(),
+      undefined,
+      'general',
       [file]
     )
   })
