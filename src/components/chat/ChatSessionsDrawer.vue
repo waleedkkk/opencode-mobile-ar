@@ -45,8 +45,21 @@
         </button>
       </div>
 
-      <!-- Drawer Footer: Switch to WebView -->
-      <div class="p-3 border-t border-border bg-muted/30">
+      <!-- Drawer Footer: session details + switch to WebView -->
+      <div class="p-3 border-t border-border bg-muted/30 flex flex-col gap-1.5">
+        <Button
+          v-if="currentSessionId"
+          type="button"
+          variant="outline"
+          size="sm"
+          data-action="drawer-session-details"
+          class="w-full justify-center gap-2 text-xs font-medium"
+          @click="emit('openSessionDetails')"
+        >
+          <Info class="size-3.5" />
+          <span>{{ t('chat.sessionDetails') || 'Session details' }}</span>
+        </Button>
+
         <Button
           type="button"
           variant="outline"
@@ -65,7 +78,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { MessageSquare, MessageCircle, Plus, Globe } from '@lucide/vue'
+import { MessageSquare, MessageCircle, Plus, Globe, Info } from '@lucide/vue'
 import {
   Sheet,
   SheetContent,
@@ -88,6 +101,7 @@ const emit = defineEmits<{
   select: [id: string]
   newSession: []
   openWebView: []
+  openSessionDetails: []
 }>()
 
 const { t, locale } = useI18n()

@@ -10,6 +10,8 @@
       @open-quick-shell="quickShellOpen = true"
       @open-files="filesSheetOpen = true"
       @open-git="gitSheetOpen = true"
+      @open-terminal="terminalSheetOpen = true"
+      @open-models="modelsSheetOpen = true"
     />
 
     <!-- Offline banner -->
@@ -53,6 +55,7 @@
       @select="handleSelectSession"
       @new-session="handleNewSession"
       @open-web-view="handleOpenWebViewFromDrawer"
+      @open-session-details="openSessionDetails"
     />
 
     <!-- Quick Shell Sheet -->
@@ -77,6 +80,34 @@
       :base-url="chatStore.baseUrl"
       :auth="chatStore.auth"
     />
+
+    <!-- Terminal Sheet -->
+    <ChatTerminalSheet
+      v-model:open="terminalSheetOpen"
+      :base-url="chatStore.baseUrl"
+      :auth="chatStore.auth"
+    />
+
+    <!-- Models Sheet -->
+    <ChatModelsSheet
+      v-model:open="modelsSheetOpen"
+      :base-url="chatStore.baseUrl"
+      :auth="chatStore.auth"
+      :active-model="chatStore.activeModel"
+      :session-id="chatStore.currentSessionId"
+      @model-selected="handleModelSelected"
+    />
+
+    <!-- Session details sheet -->
+    <ChatSessionSheet
+      v-model:open="sessionSheetOpen"
+      :base-url="chatStore.baseUrl"
+      :auth="chatStore.auth"
+      :session-id="chatStore.currentSessionId"
+      @session-forked="handleSessionForked"
+      @run-command="handleRunCommand"
+      @run-skill="handleRunSkill"
+    />
   </div>
 </template>
 
@@ -92,6 +123,9 @@ import ChatSessionsDrawer from './ChatSessionsDrawer.vue'
 import ChatQuickShell from './ChatQuickShell.vue'
 import ChatFilesSheet from './ChatFilesSheet.vue'
 import ChatGitSheet from './ChatGitSheet.vue'
+import ChatTerminalSheet from './ChatTerminalSheet.vue'
+import ChatModelsSheet from './ChatModelsSheet.vue'
+import ChatSessionSheet from './ChatSessionSheet.vue'
 
 const props = defineProps<{
   serverId: string
@@ -108,6 +142,9 @@ const drawerOpen = ref(false)
 const quickShellOpen = ref(false)
 const filesSheetOpen = ref(false)
 const gitSheetOpen = ref(false)
+const terminalSheetOpen = ref(false)
+const modelsSheetOpen = ref(false)
+const sessionSheetOpen = ref(false)
 
 const currentSessionTitle = computed(() => {
   const current = chatStore.sessions.find((s) => s.id === chatStore.currentSessionId)
@@ -127,6 +164,39 @@ onMounted(async () => {
 async function retryConnection(): Promise<void> {
   if (props.serverId) {
     await chatStore.initForServer(props.serverId)
+  }
+}
+
+async function handleSessionForked(sessionId: string): Promise<void> {
+  sessionSheetOpen.value = false
+  if (!sessionId) return
+  await chatStore.loadSessions()
+  await chatStore.selectSession(sessionId)
+}
+
+function handleRunCommand(commandName: string): void {
+  sessionSheetOpen.value = false
+  void chatStore.sendMessage('/' + commandName)
+}
+
+function handleRunSkill(skillId: string): void {
+  sessionSheetOpen.value = false
+  void chatStore.sendMessage('Use skill ' + skillId)
+}
+
+function openSessionDetails(): void {
+  sessionSheetOpen.value = true
+}
+
+async function handleModelSelected(modelId: string): Promise<void> {
+  modelsSheetOpen.value = false
+  chatStore.activeModel = modelId
+  if (!chatStore.baseUrl || !chatStore.currentSessionId) return
+  try {
+    const { switchSessionModel } = await import('@/services/opencode/modelsClient')
+    await switchSessionModel(chatStore.baseUrl, chatStore.auth, chatStore.currentSessionId, modelId)
+  } catch (err) {
+    console.warn('[chat] model switch failed:', err)
   }
 }
 

@@ -53,6 +53,28 @@
       <Button
         variant="ghost"
         size="icon-sm"
+        data-action="open-terminal"
+        class="size-7 text-muted-foreground hover:text-foreground cursor-pointer"
+        :title="t('chat.terminalTitle') || 'Terminal'"
+        @click="emit('openTerminal')"
+      >
+        <SquareTerminal class="size-3.5" />
+      </Button>
+
+      <Button
+        variant="ghost"
+        size="icon-sm"
+        data-action="open-models"
+        class="size-7 text-muted-foreground hover:text-foreground cursor-pointer"
+        :title="t('chat.modelsTitle') || 'Models'"
+        @click="emit('openModels')"
+      >
+        <Boxes class="size-3.5" />
+      </Button>
+
+      <Button
+        variant="ghost"
+        size="icon-sm"
         data-action="quick-shell"
         class="size-7 text-muted-foreground hover:text-foreground cursor-pointer"
         :title="t('chat.quickShell') || 'Quick shell'"
@@ -77,7 +99,7 @@
 </template>
 
 <script setup lang="ts">
-import { Menu, Globe, SquareTerminal, GitBranch, FolderTree } from '@lucide/vue'
+import { Menu, Globe, SquareTerminal, GitBranch, FolderTree, Boxes } from '@lucide/vue'
 import { Button } from '@/components/ui/button'
 import StatusDot from '@/components/StatusDot.vue'
 import { useI18n } from '@/i18n'
@@ -92,6 +114,8 @@ const emit = defineEmits<{
   openDrawer: []
   openWebView: []
   openQuickShell: []
+  openTerminal: []
+  openModels: []
   openFiles: []
   openGit: []
 }>()

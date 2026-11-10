@@ -131,6 +131,19 @@ const en: MessageCatalog = {
   'chat.gitBranches': 'Branches',
   'chat.gitClean': 'Working tree clean',
   'chat.gitNoRepo': 'Not a git repository',
+  'chat.terminalTitle': 'Terminal',
+  'chat.terminalEmpty': 'No terminals available',
+  'chat.terminalInputPlaceholder': 'type a command…',
+  'chat.modelsTitle': 'Models',
+  'chat.modelsEmpty': 'No models available',
+  'chat.forkSession': 'Fork session',
+  'chat.exportSession': 'Export session',
+  'chat.sessionId': 'Session',
+  'chat.sessionAgent': 'Agent',
+  'chat.sessionProject': 'Project',
+  'chat.commandsTitle': 'Commands',
+  'chat.skillsTitle': 'Skills',
+  'chat.sessionDetails': 'Session details',
 }
 
 const ar: MessageCatalog = {
@@ -330,6 +343,19 @@ const ar: MessageCatalog = {
   'chat.gitBranches': 'الفروع',
   'chat.gitClean': 'لا توجد تغييرات',
   'chat.gitNoRepo': 'ليس مستودع Git',
+  'chat.terminalTitle': 'التيرمينال',
+  'chat.terminalEmpty': 'لا توجد تيرمينالات متاحة',
+  'chat.terminalInputPlaceholder': 'اكتب أمراً…',
+  'chat.modelsTitle': 'النماذج',
+  'chat.modelsEmpty': 'لا توجد نماذج متاحة',
+  'chat.forkSession': 'تفريع الجلسة',
+  'chat.exportSession': 'تصدير الجلسة',
+  'chat.sessionId': 'الجلسة',
+  'chat.sessionAgent': 'الوكيل',
+  'chat.sessionProject': 'المشروع',
+  'chat.commandsTitle': 'الأوامر',
+  'chat.skillsTitle': 'المهارات',
+  'chat.sessionDetails': 'تفاصيل الجلسة',
 }
 
 // Concise, idiomatic wording is preferable to literal translations in a compact mobile UI.
