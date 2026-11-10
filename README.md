@@ -2,7 +2,7 @@
 
 [![Download APK](https://img.shields.io/badge/Download-APK-brightgreen.svg?logo=android)](https://github.com/waleedkkk/opencode-mobile-ar/releases/latest)
 [![Build Android APK](https://github.com/waleedkkk/opencode-mobile-ar/actions/workflows/build-apk.yml/badge.svg)](https://github.com/waleedkkk/opencode-mobile-ar/actions/workflows/build-apk.yml)
-[![Version](https://img.shields.io/badge/version-1.3.0--ar.1-blue.svg)](package.json)
+[![Version](https://img.shields.io/badge/version-1.4.0--ar.1-blue.svg)](package.json)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Platform](https://img.shields.io/badge/platform-Android%20%7C%20iOS-orange.svg)](capacitor.config.ts)
 
@@ -50,7 +50,7 @@
    - بالرغم من أن الدردشة الأصلية هي الافتراضية، يمكنك بنقرة واحدة على أيقونة المتصفح في الترويسة أو القائمة الجانبية فتح واجهة OpenCode Web الكاملة دون انقطاع الاتصال.
 
 4. **تحميل وتثبيت الـ APK مباشرة**:
-   - يحتوي المستودع على مسار GitHub Actions مجهز يقوم ببناء ملف `OpenCode-Mobile-AR-1.3.0.apk` تلقائياً مع كل تحديث؛ يمكنك تنزيله من تبويب **Actions** وتثبيته على هاتفك فوراً.
+   - يحتوي المستودع على مسار GitHub Actions مجهز يقوم ببناء ملف `OpenCode-Mobile-AR-1.4.0.apk` تلقائياً مع كل تحديث؛ يمكنك تنزيله من تبويب **Actions** وتثبيته على هاتفك فوراً.
 
 ---
 
@@ -105,7 +105,7 @@ opencode serve --hostname 0.0.0.0 --port 4096
 ### 📦 Download Prebuilt APK:
 
 You can download the latest ready-to-install Android APK directly from the [GitHub Releases page](https://github.com/waleedkkk/opencode-mobile-ar/releases/latest):
-👉 **[Download OpenCode-Mobile-AR-1.3.0.apk](https://github.com/waleedkkk/opencode-mobile-ar/releases/download/v1.3.0-ar.1/OpenCode-Mobile-AR-1.3.0.apk)**
+👉 **[Download OpenCode-Mobile-AR-1.4.0.apk](https://github.com/waleedkkk/opencode-mobile-ar/releases/download/v1.4.0-ar.1/OpenCode-Mobile-AR-1.4.0.apk)**
 
 Or from the Artifacts section in the [Actions tab](https://github.com/waleedkkk/opencode-mobile-ar/actions).
 
