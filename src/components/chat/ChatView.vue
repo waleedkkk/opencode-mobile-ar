@@ -12,6 +12,7 @@
       @open-git="gitSheetOpen = true"
       @open-terminal="terminalSheetOpen = true"
       @open-models="modelsSheetOpen = true"
+      @open-providers="providersSheetOpen = true"
     />
 
     <!-- Offline banner -->
@@ -110,6 +111,15 @@
       @run-command="handleRunCommand"
       @run-skill="handleRunSkill"
     />
+
+    <!-- Providers & credentials sheet -->
+    <ChatProvidersSheet
+      v-model:open="providersSheetOpen"
+      :base-url="chatStore.baseUrl"
+      :auth="chatStore.auth"
+      :session-id="chatStore.currentSessionId"
+      :active-model="chatStore.activeModel"
+    />
   </div>
 </template>
 
@@ -128,6 +138,7 @@ import ChatGitSheet from './ChatGitSheet.vue'
 import ChatTerminalSheet from './ChatTerminalSheet.vue'
 import ChatModelsSheet from './ChatModelsSheet.vue'
 import ChatSessionSheet from './ChatSessionSheet.vue'
+import ChatProvidersSheet from './ChatProvidersSheet.vue'
 
 const props = defineProps<{
   serverId: string
@@ -147,6 +158,7 @@ const gitSheetOpen = ref(false)
 const terminalSheetOpen = ref(false)
 const modelsSheetOpen = ref(false)
 const sessionSheetOpen = ref(false)
+const providersSheetOpen = ref(false)
 
 const currentSessionTitle = computed(() => {
   const current = chatStore.sessions.find((s) => s.id === chatStore.currentSessionId)

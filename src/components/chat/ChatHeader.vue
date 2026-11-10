@@ -68,6 +68,7 @@
         class="size-7 text-muted-foreground hover:text-foreground cursor-pointer"
         :title="t('chat.modelsTitle') || 'Models'"
         @click="emit('openModels')"
+        @click.alt="emit('openProviders')"
       >
         <Boxes class="size-3.5" />
       </Button>
@@ -104,6 +105,7 @@ const emit = defineEmits<{
   openQuickShell: []
   openTerminal: []
   openModels: []
+  openProviders: []
   openFiles: []
   openGit: []
 }>()

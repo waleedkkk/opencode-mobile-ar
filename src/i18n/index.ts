@@ -161,6 +161,12 @@ const en: MessageCatalog = {
   'chat.formHint': 'The agent is waiting for your answer.',
   'chat.formSubmit': 'Submit',
   'chat.formInvalidField': 'Please complete this field',
+  'chat.providersTitle': 'Providers',
+  'chat.credentialsTitle': 'Credentials',
+  'chat.credentialActive': 'active',
+  'chat.credentialInactive': 'inactive',
+  'chat.credentialsEmpty': 'No credentials',
+  'chat.credentialsReadOnly': 'API keys and OAuth tokens are managed on the server and cannot be viewed or changed here.',
 }
 
 const ar: MessageCatalog = {
@@ -390,6 +396,12 @@ const ar: MessageCatalog = {
   'chat.formHint': 'ينتظر الوكيل إجابتك.',
   'chat.formSubmit': 'إرسال',
   'chat.formInvalidField': 'يرجى إكمال هذا الحقل',
+  'chat.providersTitle': 'المزودون',
+  'chat.credentialsTitle': 'بيانات الاعتماد',
+  'chat.credentialActive': 'نشط',
+  'chat.credentialInactive': 'غير نشط',
+  'chat.credentialsEmpty': 'لا توجد بيانات اعتماد',
+  'chat.credentialsReadOnly': 'تُدار مفاتيح API ورموز OAuth على الخادم ولا يمكن عرضها أو تغييرها من هنا.',
 }
 
 // Concise, idiomatic wording is preferable to literal translations in a compact mobile UI.

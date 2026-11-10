@@ -30,11 +30,6 @@ function buildHeaders(auth: ChatAuth): Record<string, string> {
   }
 }
 
-function extractData(json: any): any {
-  if (json && typeof json === 'object' && 'data' in json) return json.data
-  return json
-}
-
 /**
  * Reads the OpenCode global configuration.
  *

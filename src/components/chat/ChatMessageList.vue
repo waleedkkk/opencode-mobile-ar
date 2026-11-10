@@ -31,7 +31,7 @@
       />
 
       <!-- Interactive agent forms -->
-      <div v-if="forms.length > 0" class="my-2 flex flex-col gap-2">
+      <div v-if="forms && forms.length > 0" class="my-2 flex flex-col gap-2">
         <ChatFormCard
           v-for="form in forms"
           :key="form.id"
