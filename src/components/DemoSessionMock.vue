@@ -1,6 +1,6 @@
 <template>
   <div class="min-h-dvh bg-background text-foreground flex flex-col">
-    <header class="sticky top-0 z-10 border-b bg-background/95 backdrop-blur px-4 py-3">
+    <header class="sticky top-0 z-10 border-b bg-background/95 backdrop-blur px-4 py-3 pt-[env(safe-area-inset-top)]">
       <div class="flex items-center justify-between gap-3">
         <div class="min-w-0">
           <p class="text-sm font-semibold truncate">{{ t('demo.title') }}</p>
