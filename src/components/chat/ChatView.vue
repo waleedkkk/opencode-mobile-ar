@@ -13,6 +13,7 @@
       @open-terminal="terminalSheetOpen = true"
       @open-models="modelsSheetOpen = true"
       @open-permissions="permissionsSheetOpen = true"
+      @open-insights="insightsSheetOpen = true"
       @open-providers="providersSheetOpen = true"
     />
 
@@ -106,6 +107,13 @@
       @model-selected="handleModelSelected"
     />
 
+    <!-- Insights sheet -->
+    <ChatInsightsSheet
+      v-model:open="insightsSheetOpen"
+      :base-url="chatStore.baseUrl"
+      :auth="chatStore.auth"
+    />
+
     <!-- Session details sheet -->
     <ChatSessionSheet
       v-model:open="sessionSheetOpen"
@@ -115,6 +123,7 @@
       @session-forked="handleSessionForked"
       @run-command="handleRunCommand"
       @run-skill="handleRunSkill"
+      @open-insights="insightsSheetOpen = true"
     />
 
     <!-- Providers & credentials sheet -->
@@ -151,6 +160,7 @@ import ChatModelsSheet from './ChatModelsSheet.vue'
 import ChatSessionSheet from './ChatSessionSheet.vue'
 import ChatProvidersSheet from './ChatProvidersSheet.vue'
 import ChatPermissionsSheet from './ChatPermissionsSheet.vue'
+import ChatInsightsSheet from './ChatInsightsSheet.vue'
 
 const props = defineProps<{
   serverId: string
@@ -172,6 +182,7 @@ const modelsSheetOpen = ref(false)
 const sessionSheetOpen = ref(false)
 const providersSheetOpen = ref(false)
 const permissionsSheetOpen = ref(false)
+const insightsSheetOpen = ref(false)
 
 const currentSessionTitle = computed(() => {
   const current = chatStore.sessions.find((s) => s.id === chatStore.currentSessionId)

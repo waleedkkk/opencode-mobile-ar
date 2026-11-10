@@ -40,7 +40,7 @@ describe('catalogues', () => {
 
     setLocale('ar')
     // Brand names and commands that legitimately stay Latin in Arabic UI.
-    const latinExceptions = new Set(['chat.gitTitle'])
+    const latinExceptions = new Set(['chat.gitTitle', 'chat.tabMcp'])
     for (const k of keys) {
       const arVal = t(k)
       if (latinExceptions.has(k)) {

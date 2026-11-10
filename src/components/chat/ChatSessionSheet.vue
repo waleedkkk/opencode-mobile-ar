@@ -58,6 +58,15 @@
           </a>
         </div>
 
+        <button
+          type="button"
+          data-action="open-insights"
+          class="flex items-center gap-2 px-2.5 py-2 rounded-lg border border-border hover:bg-muted/80 transition-colors cursor-pointer text-start"
+          @click="emit('openInsights')"
+        >
+          <BarChart3 class="size-3.5 text-primary shrink-0" />
+          <span class="text-xs flex-1">{{ t('chat.insightsTitle') || 'Insights' }}</span>
+        </button>
         <!-- Commands -->
         <div v-if="commands.length > 0" class="flex flex-col gap-1">
           <p class="text-[10px] uppercase tracking-wide text-muted-foreground">
@@ -106,7 +115,7 @@
 
 <script setup lang="ts">
 import { ref, watch } from 'vue'
-import { Info, GitFork, Download } from '@lucide/vue'
+import { Info, GitFork, Download, BarChart3 } from '@lucide/vue'
 import {
   Sheet,
   SheetContent,
@@ -135,6 +144,7 @@ const emit = defineEmits<{
   'session-forked': [sessionId: string]
   'run-command': [commandName: string]
   'run-skill': [skillId: string]
+  openInsights: []
 }>()
 
 const { t } = useI18n()
