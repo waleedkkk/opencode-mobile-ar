@@ -84,6 +84,16 @@
             <Button
               variant="ghost"
               size="icon-sm"
+              data-action="edit-file"
+              class="size-7"
+              :title="t('common.edit') || 'Edit'"
+              @click="startEditing"
+            >
+              <Pencil class="size-3.5" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon-sm"
               data-action="close-file"
               class="size-7"
               @click="openFilePath = ''; fileContent = ''"
@@ -96,6 +106,22 @@
           dir="ltr"
           class="flex-1 overflow-auto p-3 text-[11px] font-mono whitespace-pre text-foreground"
         >{{ fileContent }}</pre>
+      </div>
+
+      <div v-if="editingPath" data-file-editor class="absolute inset-0 z-20 flex flex-col bg-card">
+        <div class="flex items-center justify-between px-3 py-2 border-b border-border">
+          <span class="text-xs font-mono truncate" dir="ltr">{{ editingPath }}</span>
+          <div class="flex items-center gap-1 shrink-0">
+            <Button variant="ghost" size="sm" data-action="editor-save" class="h-7 text-[11px] text-primary cursor-pointer" :disabled="editorSaving" @click="saveEditing">
+              <span>{{ editorSaving ? (t('form.saving') || 'Saving...') : (t('common.save') || 'Save') }}</span>
+            </Button>
+            <Button variant="ghost" size="sm" data-action="editor-cancel" class="h-7 text-[11px] cursor-pointer" @click="cancelEditing">
+              <span>{{ t('common.cancel') || 'Cancel' }}</span>
+            </Button>
+          </div>
+        </div>
+        <p v-if="editorError" class="px-3 py-1.5 text-[11px] text-destructive border-b border-border">{{ editorError }}</p>
+        <textarea data-editor-textarea v-model="editorValue" dir="ltr" spellcheck="false" class="flex-1 w-full resize-none bg-background p-3 text-[11px] font-mono leading-relaxed outline-none text-foreground" />
       </div>
     </SheetContent>
   </Sheet>
@@ -111,6 +137,7 @@ import {
   ArrowLeft,
   Copy,
   X,
+  Pencil,
 } from '@lucide/vue'
 import {
   Sheet,
@@ -128,6 +155,7 @@ import {
   fileNameOf,
   type FileEntry,
 } from '@/services/opencode/filesClient'
+import { writeFileContent } from '@/services/opencode/fileEditorClient'
 
 const props = defineProps<{
   open: boolean
@@ -149,6 +177,43 @@ const loading = ref(false)
 const searchQuery = ref('')
 const openFilePath = ref('')
 const fileContent = ref('')
+const editingPath = ref('')
+const editorValue = ref('')
+const editorOriginal = ref('')
+const editorSaving = ref(false)
+const editorError = ref('')
+
+const isDirty = computed(() => editingPath.value !== '' && editorValue.value !== editorOriginal.value)
+
+function startEditing(): void {
+  if (!openFilePath.value) return
+  editingPath.value = openFilePath.value
+  editorOriginal.value = fileContent.value
+  editorValue.value = fileContent.value
+  editorError.value = ''
+}
+
+function cancelEditing(): void {
+  editingPath.value = ''
+  editorValue.value = ''
+  editorOriginal.value = ''
+  editorError.value = ''
+}
+
+async function saveEditing(): Promise<void> {
+  if (!editingPath.value || !props.baseUrl) return
+  editorSaving.value = true
+  editorError.value = ''
+  try {
+    await writeFileContent(props.baseUrl, props.auth, editingPath.value, editorValue.value)
+    fileContent.value = editorValue.value
+    editingPath.value = ''
+  } catch (err: any) {
+    editorError.value = err?.message || 'Failed to save file'
+  } finally {
+    editorSaving.value = false
+  }
+}
 
 function entryName(path: string): string {
   return fileNameOf(path)
@@ -189,6 +254,7 @@ function navigateUp(): void {
 }
 
 async function openEntry(entry: FileEntry): Promise<void> {
+  if (isDirty.value) return
   if (entry.type === 'directory') {
     await navigate(entry.path)
     return
