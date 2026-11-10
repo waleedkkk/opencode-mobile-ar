@@ -10,7 +10,7 @@
     @open-web-view="launchWebView"
   />
 
-  <div v-else class="fixed inset-0 flex flex-col items-center justify-center z-[1] bg-background">
+  <div v-else class="fixed inset-0 flex flex-col items-center justify-center z-[1] bg-background pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]">
     <div v-if="loading" class="flex flex-col items-center gap-4">
       <div class="h-8 w-8 animate-spin rounded-full border-4 border-border border-t-foreground" />
       <p class="text-sm text-muted-foreground">{{ t('connection.loading') }}</p>

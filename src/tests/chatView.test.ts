@@ -143,4 +143,17 @@ describe('ChatView.vue', () => {
     expect(shellBtn).not.toBeNull()
     wrapper.unmount()
   })
+
+  it('reserves the status bar safe area on the root container', async () => {
+    const store = useChatStore()
+    await store.initForServer('s1')
+
+    const wrapper = mount(ChatView, {
+      props: { serverId: 's1' },
+    })
+
+    const classes = wrapper.classes()
+    expect(classes).toContain('pt-[env(safe-area-inset-top)]')
+    wrapper.unmount()
+  })
 })

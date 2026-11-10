@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col h-dvh bg-background text-foreground overflow-hidden relative">
+  <div class="flex flex-col h-dvh bg-background text-foreground overflow-hidden relative pt-[env(safe-area-inset-top)]">
     <!-- Header -->
     <ChatHeader
       :title="currentSessionTitle"
