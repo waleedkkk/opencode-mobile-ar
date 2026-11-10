@@ -158,6 +158,9 @@ const en: MessageCatalog = {
   'chat.commandsTitle': 'Commands',
   'chat.skillsTitle': 'Skills',
   'chat.sessionDetails': 'Session details',
+  'chat.formHint': 'The agent is waiting for your answer.',
+  'chat.formSubmit': 'Submit',
+  'chat.formInvalidField': 'Please complete this field',
 }
 
 const ar: MessageCatalog = {
@@ -384,6 +387,9 @@ const ar: MessageCatalog = {
   'chat.commandsTitle': 'الأوامر',
   'chat.skillsTitle': 'المهارات',
   'chat.sessionDetails': 'تفاصيل الجلسة',
+  'chat.formHint': 'ينتظر الوكيل إجابتك.',
+  'chat.formSubmit': 'إرسال',
+  'chat.formInvalidField': 'يرجى إكمال هذا الحقل',
 }
 
 // Concise, idiomatic wording is preferable to literal translations in a compact mobile UI.

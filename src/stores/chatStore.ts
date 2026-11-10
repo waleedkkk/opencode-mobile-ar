@@ -28,6 +28,11 @@ import {
   saveOfflineSnapshot,
 } from '@/services/storage/offlineCache'
 import { App } from '@capacitor/app'
+import {
+  fetchPendingForms,
+  replyToForm,
+  type PendingForm,
+} from '@/services/opencode/formClient'
 import { Capacitor } from '@capacitor/core'
 
 export const useChatStore = defineStore('chat', () => {
@@ -47,6 +52,9 @@ export const useChatStore = defineStore('chat', () => {
   const pendingPermissions = ref<PermissionRequest[]>([])
   const isAppActive = ref(true)
   const isOffline = ref(false)
+  const pendingForms = ref<PendingForm[]>([])
+  const formError = ref('')
+  let formsTimer: ReturnType<typeof setInterval> | null = null
 
   if (Capacitor.isNativePlatform()) {
     void App.addListener('appStateChange', (state) => {
@@ -116,6 +124,9 @@ export const useChatStore = defineStore('chat', () => {
       } else {
         await newSession()
       }
+
+      void refreshForms()
+      startFormsPolling()
     } catch (err) {
       // Network failure: keep the cached session on screen (offline reading mode)
       console.warn('[chatStore] server unreachable, showing cached session:', err)
@@ -352,7 +363,45 @@ export const useChatStore = defineStore('chat', () => {
     }
   }
 
+  async function refreshForms(): Promise<void> {
+    if (!baseUrl.value) return
+    try {
+      pendingForms.value = await fetchPendingForms(baseUrl.value, auth.value, currentSessionId.value ?? undefined)
+    } catch {
+      // keep the current list
+    }
+  }
+
+  function startFormsPolling(): void {
+    stopFormsPolling()
+    if (typeof setInterval !== 'function') return
+    formsTimer = setInterval(() => {
+      if (baseUrl.value) void refreshForms()
+    }, 5000)
+  }
+
+  function stopFormsPolling(): void {
+    if (formsTimer !== null) {
+      clearInterval(formsTimer)
+      formsTimer = null
+    }
+  }
+
+  async function submitForm(formId: string, answer: Record<string, unknown>): Promise<void> {
+    if (!baseUrl.value || !currentSessionId.value) return
+    formError.value = ''
+    try {
+      await replyToForm(baseUrl.value, auth.value, currentSessionId.value, formId, answer as any)
+      pendingForms.value = pendingForms.value.filter((f) => f.id !== formId)
+    } catch (err: any) {
+      formError.value = err?.message || 'Failed to submit form'
+    }
+  }
+
   function cleanup(): void {
+    stopFormsPolling()
+    pendingForms.value = []
+    formError.value = ''
     if (sseDisconnect) {
       sseDisconnect()
       sseDisconnect = null
@@ -380,6 +429,10 @@ export const useChatStore = defineStore('chat', () => {
     pendingPermissions,
     isAppActive,
     isOffline,
+    pendingForms,
+    formError,
+    refreshForms,
+    submitForm,
     initForServer,
     loadSessions,
     selectSession,

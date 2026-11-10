@@ -30,6 +30,16 @@
         @deny-permission="(id) => emit('denyPermission', id)"
       />
 
+      <!-- Interactive agent forms -->
+      <div v-if="forms.length > 0" class="my-2 flex flex-col gap-2">
+        <ChatFormCard
+          v-for="form in forms"
+          :key="form.id"
+          :form="form"
+          @submit="(id, answer) => emit('submitForm', id, answer)"
+        />
+      </div>
+
       <!-- Suggested Quick Action Chips -->
       <div
         v-if="showActionChips"
@@ -83,17 +93,21 @@ import { ref, computed, watch, nextTick, onMounted } from 'vue'
 import { Sparkles, ArrowDown } from '@lucide/vue'
 import type { ChatMessage } from '@/types/chat'
 import ChatMessageItem from './ChatMessageItem.vue'
+import ChatFormCard from './ChatFormCard.vue'
+import type { PendingForm } from '@/services/opencode/formClient'
 import { useI18n } from '@/i18n'
 
 const props = defineProps<{
   messages: ChatMessage[]
   streaming?: boolean
+  forms?: PendingForm[]
 }>()
 
 const emit = defineEmits<{
   allowPermission: [id: string]
   denyPermission: [id: string]
   selectAction: [prompt: string]
+  submitForm: [id: string, answer: Record<string, unknown>]
 }>()
 
 const { t } = useI18n()

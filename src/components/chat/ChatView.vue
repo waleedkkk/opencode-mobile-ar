@@ -33,10 +33,12 @@
     <!-- Message history list -->
     <ChatMessageList
       :messages="chatStore.messages"
+      :forms="chatStore.pendingForms"
       :streaming="chatStore.streamingStatus !== 'idle'"
       @allow-permission="(id) => chatStore.respondPermission(id, true)"
       @deny-permission="(id) => chatStore.respondPermission(id, false)"
       @select-action="(prompt) => chatStore.sendMessage(prompt)"
+      @submit-form="(id, answer) => chatStore.submitForm(id, answer)"
     />
 
     <!-- Composer -->
