@@ -26,8 +26,19 @@
       </div>
     </div>
 
-    <!-- Right / End: Switch to full WebView button -->
+    <!-- Right / End: Quick shell + switch to full WebView button -->
     <div class="flex items-center gap-1 shrink-0">
+      <Button
+        variant="ghost"
+        size="icon-sm"
+        data-action="quick-shell"
+        class="size-7 text-muted-foreground hover:text-foreground cursor-pointer"
+        :title="t('chat.quickShell') || 'Quick shell'"
+        @click="emit('openQuickShell')"
+      >
+        <SquareTerminal class="size-3.5" />
+      </Button>
+
       <Button
         variant="outline"
         size="xs"
@@ -44,7 +55,7 @@
 </template>
 
 <script setup lang="ts">
-import { Menu, Globe } from '@lucide/vue'
+import { Menu, Globe, SquareTerminal } from '@lucide/vue'
 import { Button } from '@/components/ui/button'
 import StatusDot from '@/components/StatusDot.vue'
 import { useI18n } from '@/i18n'
@@ -58,6 +69,7 @@ defineProps<{
 const emit = defineEmits<{
   openDrawer: []
   openWebView: []
+  openQuickShell: []
 }>()
 
 const { t } = useI18n()

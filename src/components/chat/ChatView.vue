@@ -7,6 +7,7 @@
       :status="connectionStatus"
       @open-drawer="drawerOpen = true"
       @open-web-view="emit('openWebView')"
+      @open-quick-shell="quickShellOpen = true"
     />
 
     <!-- Message history list -->
@@ -35,6 +36,14 @@
       @new-session="handleNewSession"
       @open-web-view="handleOpenWebViewFromDrawer"
     />
+
+    <!-- Quick Shell Sheet -->
+    <ChatQuickShell
+      v-model:open="quickShellOpen"
+      :base-url="chatStore.baseUrl"
+      :auth="chatStore.auth"
+      :session-id="chatStore.currentSessionId"
+    />
   </div>
 </template>
 
@@ -46,6 +55,7 @@ import ChatHeader from './ChatHeader.vue'
 import ChatMessageList from './ChatMessageList.vue'
 import ChatComposer from './ChatComposer.vue'
 import ChatSessionsDrawer from './ChatSessionsDrawer.vue'
+import ChatQuickShell from './ChatQuickShell.vue'
 
 const props = defineProps<{
   serverId: string
@@ -58,6 +68,7 @@ const emit = defineEmits<{
 const chatStore = useChatStore()
 const connectionStore = useConnectionStore()
 const drawerOpen = ref(false)
+const quickShellOpen = ref(false)
 
 const currentSessionTitle = computed(() => {
   const current = chatStore.sessions.find((s) => s.id === chatStore.currentSessionId)

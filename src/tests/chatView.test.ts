@@ -127,4 +127,20 @@ describe('ChatView.vue', () => {
 
     expect(sendPromptSpy).toHaveBeenCalled()
   })
+
+  it('opens quick shell sheet from header button', async () => {
+    const store = useChatStore()
+    await store.initForServer('s1')
+
+    const wrapper = mount(ChatView, {
+      attachTo: document.body,
+      props: { serverId: 's1' },
+    })
+
+    await wrapper.find('[data-action="quick-shell"]').trigger('click')
+
+    const shellBtn = document.body.querySelector('[data-action="shell-run"]') as HTMLElement | null
+    expect(shellBtn).not.toBeNull()
+    wrapper.unmount()
+  })
 })

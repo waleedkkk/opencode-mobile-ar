@@ -113,6 +113,12 @@ const en: MessageCatalog = {
   'chat.actionRunTests': '⚡ Run tests',
   'chat.actionCommit': '📝 Commit changes',
   'chat.actionExplain': '💡 Explain more',
+  'chat.quickShell': 'Quick shell',
+  'chat.shellPlaceholder': 'e.g. git status, npm test…',
+  'chat.shellRun': 'Run',
+  'chat.shellRunning': 'Running…',
+  'chat.shellExit': 'Exit code',
+  'chat.shellEmpty': 'No command yet',
 }
 
 const ar: MessageCatalog = {
@@ -294,6 +300,12 @@ const ar: MessageCatalog = {
   'chat.actionRunTests': '⚡ تشغيل الاختبارات',
   'chat.actionCommit': '📝 اعتماد التغييرات',
   'chat.actionExplain': '💡 اشرح أكثر',
+  'chat.quickShell': 'تيرمينال سريع',
+  'chat.shellPlaceholder': 'مثال: git status، npm test…',
+  'chat.shellRun': 'تشغيل',
+  'chat.shellRunning': 'جارٍ التشغيل…',
+  'chat.shellExit': 'رمز الخروج',
+  'chat.shellEmpty': 'لم تُنفّذ أي أوامر بعد',
 }
 
 // Concise, idiomatic wording is preferable to literal translations in a compact mobile UI.
