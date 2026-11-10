@@ -56,6 +56,21 @@ describe('ChatComposer.vue', () => {
     const voiceBtn = wrapper.find('[data-action="voice"]')
     expect(voiceBtn.exists()).toBe(true)
   })
+
+  it('shows slash command suggestions when typing / and populates prompt on click', async () => {
+    const wrapper = mount(ChatComposer, { props: { streaming: false } })
+    const textarea = wrapper.find('textarea')
+    await textarea.setValue('/te')
+
+    const slashMenu = wrapper.find('[data-slash-menu]')
+    expect(slashMenu.exists()).toBe(true)
+    expect(wrapper.text()).toContain('/test')
+
+    const testItem = wrapper.find('[data-command="test"]')
+    await testItem.trigger('click')
+
+    expect((textarea.element as HTMLTextAreaElement).value).toContain('Run the project tests')
+  })
 })
 
 describe('ChatHeader.vue', () => {

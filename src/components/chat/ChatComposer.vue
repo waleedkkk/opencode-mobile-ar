@@ -30,6 +30,28 @@
         </div>
       </div>
 
+      <!-- Slash commands floating menu -->
+      <div
+        v-if="showSlashMenu && filteredCommands.length > 0"
+        data-slash-menu
+        class="flex flex-col gap-1 p-1.5 rounded-xl border border-border bg-card shadow-lg max-h-48 overflow-y-auto mb-1 animate-in fade-in-0 duration-150"
+      >
+        <button
+          v-for="cmd in filteredCommands"
+          :key="cmd.key"
+          type="button"
+          :data-command="cmd.key"
+          class="flex items-center justify-between gap-3 px-3 py-2 rounded-lg text-start hover:bg-muted/80 transition-colors cursor-pointer select-none"
+          @click="selectSlashCommand(cmd)"
+        >
+          <div class="flex items-center gap-2">
+            <span class="font-mono text-xs font-semibold text-primary">{{ cmd.label }}</span>
+            <span class="text-[11px] text-muted-foreground">{{ t(cmd.descriptionKey) }}</span>
+          </div>
+          <ArrowRight class="size-3 text-muted-foreground opacity-50 rtl:rotate-180 shrink-0" />
+        </button>
+      </div>
+
       <!-- Main Input Row -->
       <div class="flex items-end gap-2">
         <!-- Hidden native file input -->
@@ -119,8 +141,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, nextTick } from 'vue'
-import { ArrowUp, Square, Paperclip, X, FileText, Mic } from '@lucide/vue'
+import { ref, computed, nextTick } from 'vue'
+import { ArrowUp, Square, Paperclip, X, FileText, Mic, ArrowRight } from '@lucide/vue'
 import { Button } from '@/components/ui/button'
 import type { FileAttachment } from '@/types/chat'
 import { useI18n } from '@/i18n'
@@ -128,6 +150,10 @@ import {
   createSpeechRecognizer,
   type SpeechRecognizer,
 } from '@/services/platform/speechRecognition'
+import {
+  filterSlashCommands,
+  type SlashCommand,
+} from '@/services/chat/commands'
 
 const props = defineProps<{
   disabled?: boolean
@@ -146,6 +172,17 @@ const isListening = ref(false)
 let recognizer: SpeechRecognizer | null = null
 const textareaRef = ref<HTMLTextAreaElement | null>(null)
 const fileInputRef = ref<HTMLInputElement | null>(null)
+
+const showSlashMenu = computed(() => input.value.startsWith('/') && !props.streaming)
+const filteredCommands = computed(() => filterSlashCommands(input.value))
+
+function selectSlashCommand(cmd: SlashCommand): void {
+  input.value = cmd.prompt
+  nextTick(() => {
+    adjustHeight()
+    textareaRef.value?.focus()
+  })
+}
 
 function adjustHeight(): void {
   const el = textareaRef.value

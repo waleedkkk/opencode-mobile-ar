@@ -104,6 +104,15 @@ const en: MessageCatalog = {
   'chat.notifPermissionBody': 'A tool requires your approval to proceed.',
   'chat.voicePrompt': 'Voice input',
   'chat.voiceListening': 'Listening...',
+  'chat.cmdTestDesc': 'Run tests and report failures',
+  'chat.cmdGitDesc': 'Check git status and modified files',
+  'chat.cmdFixDesc': 'Inspect and fix the latest issue',
+  'chat.cmdExplainDesc': 'Explain code architecture and logic',
+  'chat.cmdReviewDesc': 'Review recent changes for quality',
+  'chat.cmdCompactDesc': 'Compact conversation context',
+  'chat.actionRunTests': '⚡ Run tests',
+  'chat.actionCommit': '📝 Commit changes',
+  'chat.actionExplain': '💡 Explain more',
 }
 
 const ar: MessageCatalog = {
@@ -276,6 +285,15 @@ const ar: MessageCatalog = {
   'chat.notifPermissionBody': 'تتطلب الأداة موافقتك للمتابعة.',
   'chat.voicePrompt': 'إدخال صوتي',
   'chat.voiceListening': 'جارٍ الاستماع...',
+  'chat.cmdTestDesc': 'تشغيل الاختبارات والإبلاغ عن الأخطاء',
+  'chat.cmdGitDesc': 'فحص حالة git والملفات المعدلة',
+  'chat.cmdFixDesc': 'فحص وإصلاح المشكلة الأخيرة',
+  'chat.cmdExplainDesc': 'شرح معمارية ومنطق الشيفرة',
+  'chat.cmdReviewDesc': 'مراجعة التغييرات الأخيرة وضمان الجودة',
+  'chat.cmdCompactDesc': 'ضغط سياق المحادثة لتوفير الذاكرة',
+  'chat.actionRunTests': '⚡ تشغيل الاختبارات',
+  'chat.actionCommit': '📝 اعتماد التغييرات',
+  'chat.actionExplain': '💡 اشرح أكثر',
 }
 
 // Concise, idiomatic wording is preferable to literal translations in a compact mobile UI.

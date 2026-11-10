@@ -15,6 +15,7 @@
       :streaming="chatStore.streamingStatus !== 'idle'"
       @allow-permission="(id) => chatStore.respondPermission(id, true)"
       @deny-permission="(id) => chatStore.respondPermission(id, false)"
+      @select-action="(prompt) => chatStore.sendMessage(prompt)"
     />
 
     <!-- Composer -->

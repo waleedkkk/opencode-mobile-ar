@@ -29,6 +29,38 @@
         @allow-permission="(id) => emit('allowPermission', id)"
         @deny-permission="(id) => emit('denyPermission', id)"
       />
+
+      <!-- Suggested Quick Action Chips -->
+      <div
+        v-if="showActionChips"
+        data-action-chips
+        class="flex items-center gap-1.5 overflow-x-auto py-2 px-1 my-1 select-none"
+      >
+        <button
+          type="button"
+          data-action-chip="test"
+          class="shrink-0 px-2.5 py-1 rounded-full border border-border bg-card hover:bg-muted text-[11px] font-medium text-foreground transition-colors cursor-pointer shadow-2xs"
+          @click="emit('selectAction', 'Run the project tests and report any failures.')"
+        >
+          {{ t('chat.actionRunTests') || '⚡ Run tests' }}
+        </button>
+        <button
+          type="button"
+          data-action-chip="commit"
+          class="shrink-0 px-2.5 py-1 rounded-full border border-border bg-card hover:bg-muted text-[11px] font-medium text-foreground transition-colors cursor-pointer shadow-2xs"
+          @click="emit('selectAction', 'Review current git diff and commit the changes.')"
+        >
+          {{ t('chat.actionCommit') || '📝 Commit changes' }}
+        </button>
+        <button
+          type="button"
+          data-action-chip="explain"
+          class="shrink-0 px-2.5 py-1 rounded-full border border-border bg-card hover:bg-muted text-[11px] font-medium text-foreground transition-colors cursor-pointer shadow-2xs"
+          @click="emit('selectAction', 'Please explain how this solution works in more detail.')"
+        >
+          {{ t('chat.actionExplain') || '💡 Explain more' }}
+        </button>
+      </div>
     </div>
 
     <!-- Floating jump to bottom button -->
@@ -47,7 +79,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, nextTick, onMounted } from 'vue'
+import { ref, computed, watch, nextTick, onMounted } from 'vue'
 import { Sparkles, ArrowDown } from '@lucide/vue'
 import type { ChatMessage } from '@/types/chat'
 import ChatMessageItem from './ChatMessageItem.vue'
@@ -61,12 +93,19 @@ const props = defineProps<{
 const emit = defineEmits<{
   allowPermission: [id: string]
   denyPermission: [id: string]
+  selectAction: [prompt: string]
 }>()
 
 const { t } = useI18n()
 const listContainer = ref<HTMLElement | null>(null)
 const showScrollButton = ref(false)
 let userIsScrolledUp = false
+
+const showActionChips = computed(() => {
+  if (props.streaming || props.messages.length === 0) return false
+  const last = props.messages[props.messages.length - 1]
+  return last && last.role === 'assistant' && !last.streaming
+})
 
 function handleScroll(): void {
   if (!listContainer.value) return

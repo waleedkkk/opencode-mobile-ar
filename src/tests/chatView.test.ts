@@ -99,4 +99,32 @@ describe('ChatView.vue', () => {
     expect(store.currentSessionId).toBe('ses_3')
     wrapper.unmount()
   })
+
+  it('renders suggested action chips when assistant finishes and sends prompt on click', async () => {
+    const store = useChatStore()
+    await store.initForServer('s1')
+
+    store.messages = [
+      { id: 'm1', role: 'user', content: 'hello', createdAt: '2026-11-08' },
+      { id: 'm2', role: 'assistant', content: 'here is the solution', createdAt: '2026-11-08', streaming: false },
+    ]
+    store.streamingStatus = 'idle'
+
+    const wrapper = mount(ChatView, {
+      props: {
+        serverId: 's1',
+      },
+    })
+
+    const actionChips = wrapper.find('[data-action-chips]')
+    expect(actionChips.exists()).toBe(true)
+
+    const sendPromptSpy = vi.spyOn(chatClient, 'sendPrompt').mockResolvedValue(undefined)
+
+    const testChip = wrapper.find('[data-action-chip="test"]')
+    expect(testChip.exists()).toBe(true)
+    await testChip.trigger('click')
+
+    expect(sendPromptSpy).toHaveBeenCalled()
+  })
 })
