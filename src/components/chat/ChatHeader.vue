@@ -85,12 +85,23 @@
         <SquareTerminal class="size-3.5" />
       </Button>
 
+      <Button
+        variant="ghost"
+        size="icon-sm"
+        data-action="open-settings"
+        class="size-7 text-muted-foreground hover:text-foreground cursor-pointer"
+        :title="t('common.settings') || 'Settings'"
+        @click="emit('openSettings')"
+      >
+        <Settings class="size-3.5" />
+      </Button>
+
     </div>
   </header>
 </template>
 
 <script setup lang="ts">
-import { Menu, SquareTerminal, GitBranch, FolderTree, Boxes } from '@lucide/vue'
+import { Menu, SquareTerminal, GitBranch, FolderTree, Boxes, Settings } from '@lucide/vue'
 import { Button } from '@/components/ui/button'
 import StatusDot from '@/components/StatusDot.vue'
 import { useI18n } from '@/i18n'
@@ -104,6 +115,7 @@ defineProps<{
 const emit = defineEmits<{
   openDrawer: []
   openQuickShell: []
+  openSettings: []
   openTerminal: []
   openModels: []
   openProviders: []

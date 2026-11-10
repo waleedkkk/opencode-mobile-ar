@@ -226,5 +226,13 @@ function openFullWebInterface(): void {
   router.push(`/connect/${serverId}?webview=1`)
 }
 
-function goBack(): void { router.push('/') }
+function goBack(): void {
+  // Return to whatever opened Settings (a chat session) instead of always
+  // dumping the user on the landing screen.
+  if (typeof window !== 'undefined' && window.history.length > 1) {
+    router.back()
+    return
+  }
+  router.push('/')
+}
 </script>

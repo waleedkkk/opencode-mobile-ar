@@ -8,6 +8,7 @@
       @open-drawer="drawerOpen = true"
       @open-web-view="emit('openWebView')"
       @open-quick-shell="quickShellOpen = true"
+      @open-settings="openSettings"
       @open-files="filesSheetOpen = true"
       @open-git="gitSheetOpen = true"
       @open-terminal="terminalSheetOpen = true"
@@ -153,6 +154,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { useI18n } from '@/i18n'
 import { useChatStore } from '@/stores/chatStore'
 import { useConnectionStore } from '@/stores/connectionStore'
@@ -178,6 +180,7 @@ const emit = defineEmits<{
   openWebView: []
 }>()
 
+const router = useRouter()
 const chatStore = useChatStore()
 const connectionStore = useConnectionStore()
 const { t } = useI18n()
@@ -234,6 +237,8 @@ async function handleSelectProject(projectId: string): Promise<void> {
   drawerOpen.value = false
   await chatStore.switchProject(projectId)
 }
+
+function openSettings(): void { router.push('/settings') }
 
 function openSessionDetails(): void {
   sessionSheetOpen.value = true
