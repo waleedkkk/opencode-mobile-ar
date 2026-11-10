@@ -136,3 +136,27 @@ direction preference. The following must be confirmed on a device or simulator
 5. Disable network access and confirm Arabic text still renders with a system
    fallback font.
 6. Repeat in both light and dark themes.
+
+## Native settings & completion (Phase 2)
+
+The full WebView is no longer the default experience. Everything below is native:
+
+- **Chat** — streaming, markdown, code blocks with copy, tool call cards, permission prompts, attachments, voice input, slash commands and action chips.
+- **Sessions** — drawer, switching, new session, session details, fork and export, project switching, compact and move.
+- **Files** — browser, viewer, search, and a native editor with a dirty-state guard.
+- **Git** — branch list, changed files with +/- counters, and an interactive diff viewer.
+- **Terminal** — interactive PTY over WebSocket plus a one-shot quick shell.
+- **Settings** — appearance (system/light/dark), shell selection from the server, providers and model visibility, credential labels (secrets are never displayed), and saved permission rules.
+- **Forms** — interactive agent forms render inline and reply natively.
+- **Insights** — usage/cost stats, MCP servers, integrations, worktrees, and web search.
+- The full Web UI remains available from **Settings → Advanced** for the three cases
+  the API cannot express: editing `opencode.json` as a whole, changing API key
+  values, and Git write actions (stage/commit/push).
+
+## Manual verification pending (on-device)
+
+1. All items from the earlier list above (identity, Arabic/RTL, WebView direction).
+2. Native settings — appearance switch, shell selection, providers, and permission rules persist across app restarts.
+3. Native file editor — save, cancel, and the dirty guard when switching files.
+4. Interactive terminal — connect, send a command, and read the output on Android and iOS.
+5. Forms — trigger a form from the agent and answer it without opening WebView.
