@@ -23,6 +23,26 @@
         </Button>
       </SheetHeader>
 
+      <!-- Active project -->
+      <div class="px-3 pb-2 border-b border-border flex flex-col gap-1.5">
+        <p class="text-[10px] uppercase tracking-wide text-muted-foreground">{{ t('chat.projectTitle') || 'Project' }}</p>
+        <p class="text-[11px] text-foreground font-mono truncate" dir="ltr">{{ currentDirectory || currentProjectID }}</p>
+        <p class="text-[10px] text-muted-foreground">{{ t('chat.projectSwitchHint') }}</p>
+        <div v-if="projects && projects.length > 0" class="flex flex-wrap gap-1.5 pt-1">
+          <button
+            v-for="project in projects"
+            :key="project.id"
+            type="button"
+            :data-project="project.id"
+            class="px-2.5 py-1 rounded-full border text-[11px] font-medium cursor-pointer transition-colors"
+            :class="project.id === currentProjectID ? 'bg-primary text-primary-foreground border-primary' : 'border-border bg-background text-foreground hover:bg-muted'"
+            @click="emit('selectProject', project.id)"
+          >
+            {{ project.name || project.id }}
+          </button>
+        </div>
+      </div>
+
       <!-- Sessions List -->
       <div class="flex-1 overflow-y-auto p-2 flex flex-col gap-1">
         <div v-if="sessions.length === 0" class="py-8 text-center text-xs text-muted-foreground">
@@ -83,6 +103,9 @@ defineProps<{
   open: boolean
   sessions: SessionInfo[]
   currentSessionId: string | null
+  projects?: { id: string; name: string; directory: string }[]
+  currentDirectory?: string
+  currentProjectID?: string
 }>()
 
 const emit = defineEmits<{
@@ -90,6 +113,7 @@ const emit = defineEmits<{
   select: [id: string]
   newSession: []
   openSessionDetails: []
+  selectProject: [id: string]
 }>()
 
 const { t, locale } = useI18n()

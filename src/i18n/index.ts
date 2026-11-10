@@ -172,6 +172,8 @@ const en: MessageCatalog = {
   'chat.permissionEffect': 'Effect',
   'chat.permissionDeleteConfirm': 'Delete this permission rule?',
   'chat.permissionsHint': 'Saved rules let the agent run matching tools without asking. Changing the effect requires server access.',
+  'chat.projectTitle': 'Project',
+  'chat.projectSwitchHint': 'Tap a project to switch the chat and reload its sessions.',
 }
 
 const ar: MessageCatalog = {
@@ -412,6 +414,8 @@ const ar: MessageCatalog = {
   'chat.permissionEffect': 'التأثير',
   'chat.permissionDeleteConfirm': 'حذف قاعدة الإذن هذه؟',
   'chat.permissionsHint': 'تتيح القواعد المحفوظة للوكيل تشغيل الأدوات المطابقة دون سؤال. تغيير التأثير يتطلب صلاحية على الخادم.',
+  'chat.projectTitle': 'المشروع',
+  'chat.projectSwitchHint': 'اضغط مشروعاً لتبديل المحادثة وإعادة تحميل جلساته.',
 }
 
 // Concise, idiomatic wording is preferable to literal translations in a compact mobile UI.

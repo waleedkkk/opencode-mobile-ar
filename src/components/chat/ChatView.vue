@@ -56,10 +56,14 @@
       v-model:open="drawerOpen"
       :sessions="chatStore.sessions"
       :current-session-id="chatStore.currentSessionId"
+      :projects="chatStore.projects"
+      :current-directory="chatStore.currentDirectory"
+      :current-project-i-d="chatStore.currentProjectID"
       @select="handleSelectSession"
       @new-session="handleNewSession"
       @open-web-view="handleOpenWebViewFromDrawer"
       @open-session-details="openSessionDetails"
+      @select-project="handleSelectProject"
     />
 
     <!-- Quick Shell Sheet -->
@@ -205,6 +209,11 @@ function handleRunCommand(commandName: string): void {
 function handleRunSkill(skillId: string): void {
   sessionSheetOpen.value = false
   void chatStore.sendMessage('Use skill ' + skillId)
+}
+
+async function handleSelectProject(projectId: string): Promise<void> {
+  drawerOpen.value = false
+  await chatStore.switchProject(projectId)
 }
 
 function openSessionDetails(): void {

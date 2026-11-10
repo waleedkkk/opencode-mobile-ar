@@ -29,6 +29,13 @@ import {
 } from '@/services/storage/offlineCache'
 import { App } from '@capacitor/app'
 import {
+  fetchLocation,
+  fetchProjects,
+  reloadLocation,
+  updateProject,
+  type ProjectSummary,
+} from '@/services/opencode/projectClient'
+import {
   fetchPendingForms,
   replyToForm,
   type PendingForm,
@@ -52,6 +59,10 @@ export const useChatStore = defineStore('chat', () => {
   const pendingPermissions = ref<PermissionRequest[]>([])
   const isAppActive = ref(true)
   const isOffline = ref(false)
+  const projects = ref<ProjectSummary[]>([])
+  const currentDirectory = ref('')
+  const currentProjectID = ref('')
+  const projectError = ref('')
   const pendingForms = ref<PendingForm[]>([])
   const formError = ref('')
   let formsTimer: ReturnType<typeof setInterval> | null = null
@@ -126,6 +137,7 @@ export const useChatStore = defineStore('chat', () => {
       }
 
       void refreshForms()
+      void loadProjects()
       startFormsPolling()
     } catch (err) {
       // Network failure: keep the cached session on screen (offline reading mode)
@@ -363,7 +375,41 @@ export const useChatStore = defineStore('chat', () => {
     }
   }
 
-  async function refreshForms(): Promise<void> {
+  async function loadProjects(): Promise<void> {
+    if (!baseUrl.value) return
+    projectError.value = ''
+    try {
+      const [location, list] = await Promise.all([
+        fetchLocation(baseUrl.value, auth.value),
+        fetchProjects(baseUrl.value, auth.value),
+      ])
+      currentDirectory.value = location.directory
+      currentProjectID.value = location.projectID
+      projects.value = list
+    } catch (err: any) {
+      projectError.value = err?.message || 'Failed to load projects'
+    }
+  }
+
+  async function switchProject(projectId: string): Promise<void> {
+    if (!baseUrl.value || !projectId) return
+    projectError.value = ''
+    try {
+      await updateProject(baseUrl.value, auth.value, projectId, { active: true })
+      await reloadLocation(baseUrl.value, auth.value)
+      await loadProjects()
+      await loadSessions()
+      if (sessions.value.length > 0) {
+        await selectSession(sessions.value[0].id)
+      } else {
+        await newSession()
+      }
+    } catch (err: any) {
+      projectError.value = err?.message || 'Failed to switch project'
+    }
+  }
+
+    async function refreshForms(): Promise<void> {
     if (!baseUrl.value) return
     try {
       pendingForms.value = await fetchPendingForms(baseUrl.value, auth.value, currentSessionId.value ?? undefined)
@@ -431,6 +477,12 @@ export const useChatStore = defineStore('chat', () => {
     isOffline,
     pendingForms,
     formError,
+    projects,
+    currentDirectory,
+    currentProjectID,
+    projectError,
+    loadProjects,
+    switchProject,
     refreshForms,
     submitForm,
     initForServer,
