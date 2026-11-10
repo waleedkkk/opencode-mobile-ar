@@ -64,6 +64,41 @@
         <p class="text-xs text-muted-foreground mt-1 leading-relaxed">{{ t('settings.webviewDirectionHint') }}</p>
       </section>
 
+      <section class="mt-4" data-appearance-section>
+        <h2 class="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">{{ t('settings.appearance') }}</h2>
+        <select v-model="themeModel" data-theme-select class="w-full rounded-md border bg-background px-3 py-2 text-sm">
+          <option value="system">{{ t('settings.themeSystem') }}</option>
+          <option value="light">{{ t('settings.themeLight') }}</option>
+          <option value="dark">{{ t('settings.themeDark') }}</option>
+        </select>
+        <p class="text-xs text-muted-foreground mt-1 leading-relaxed">{{ t('settings.themeHint') }}</p>
+      </section>
+
+      <section class="mt-4" data-opencode-config-section>
+        <h2 class="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">{{ t('settings.opencodeConfig') }}</h2>
+
+        <div v-if="configError" class="text-xs text-destructive mb-2">{{ configError }}</div>
+
+        <div v-if="shells.length > 0" class="flex flex-col gap-1.5 mb-3">
+          <Label class="text-center justify-center">{{ t('settings.shell') }}</Label>
+          <select v-model="shellModel" data-shell-select class="w-full rounded-md border bg-background px-3 py-2 text-sm font-mono" dir="ltr">
+            <option v-for="shell in shells" :key="shell.path" :value="shell.path">{{ shell.name || shell.path }}</option>
+          </select>
+          <p v-if="shellError" class="text-xs text-destructive">{{ shellError }}</p>
+        </div>
+
+        <div class="rounded-lg border border-border bg-muted/30 px-3 py-2 text-xs text-muted-foreground leading-relaxed">
+          <p class="mb-1">
+            {{ t('settings.providersCount') }}: <span class="font-mono text-foreground">{{ providerCount }}</span>
+            · {{ t('settings.enabledModels') }}: <span class="font-mono text-foreground">{{ enabledModelCount }}</span>
+          </p>
+          <p v-if="websearchProvider" class="mb-1">
+            {{ t('settings.websearchProvider') }}: <span class="font-mono text-foreground" dir="ltr">{{ websearchProvider }}</span>
+          </p>
+          <p>{{ t('settings.configReadOnlyHint') }}</p>
+        </div>
+      </section>
+
       <section class="mt-4" data-advanced-section>
         <h2 class="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">{{ t('settings.advanced') }}</h2>
         <p class="text-xs text-muted-foreground leading-relaxed mb-3">
@@ -86,7 +121,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { ArrowLeft, Globe } from '@lucide/vue'
 import { Button } from '@/components/ui/button'
@@ -107,10 +142,12 @@ import {
   type WebviewDirection,
 } from '@/services/storage/uiPreferences'
 import { useServerStore } from '@/stores/serverStore'
+import { useSettingsStore } from '@/stores/settingsStore'
 
 const router = useRouter()
 const connectionStore = useConnectionStore()
 const serverStore = useServerStore()
+const settingsStore = useSettingsStore()
 const { t, locale, setLocale, supportedLocales } = useI18n()
 
 const timeoutMs = ref(connectionStore.healthCheckTimeout)
@@ -118,6 +155,22 @@ const pollMs = ref(connectionStore.healthPollInterval)
 const exponentialReconnect = ref(connectionStore.exponentialReconnectEnabled)
 const notificationsEnabled = ref(false)
 const webviewDirection = ref<WebviewDirection>(getWebviewDirection())
+  const shells = computed(() => settingsStore.shells)
+  const providerCount = computed(() => settingsStore.providerCount)
+  const enabledModelCount = computed(() => settingsStore.enabledModelCount)
+  const websearchProvider = computed(() => settingsStore.websearchProvider)
+  const shellError = computed(() => settingsStore.shellError)
+  const configError = computed(() => settingsStore.configError)
+  const shellModel = ref(settingsStore.settingsShell)
+
+  const themeModel = computed({
+    get: () => settingsStore.theme,
+    set: (value) => settingsStore.setTheme(value),
+  })
+
+  watch(shellModel, (value) => {
+    if (value) void settingsStore.applyShell(value)
+  })
 
 let notificationsLoaded = false
 let syncingNotificationsSwitch = false
@@ -144,6 +197,16 @@ watch(notificationsEnabled, async (val) => {
 })
 
 onMounted(async () => {
+  if (connectionStore.activeServerId && connectionStore.activeServer) {
+    await settingsStore.bindServer(
+      connectionStore.activeServer.baseUrl,
+      {
+        username: connectionStore.activeServer.authEnabled ? connectionStore.activeServer.username : 'opencode',
+      }
+    )
+    await settingsStore.loadServerConfig()
+    await settingsStore.loadShells()
+  }
   const settings = await loadNativeNotificationSettings()
   notificationsEnabled.value = settings.enabled
   notificationsLoaded = true
